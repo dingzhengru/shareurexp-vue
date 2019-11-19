@@ -223,6 +223,21 @@ export default {
                     reject(error);
                 })
             })
+        },
+        getUserByUid({ commit }, payload) {
+            let uid = payload;
+            return new Promise((resolve, reject) => {
+                db.collection('users')
+                .where('uid', '==', uid)
+                .get()
+                .then((snapshot) => {
+                    let users = snapshot.docs.map(doc => doc.data());
+                    resolve(users[0]);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            })
         }
     },
 }

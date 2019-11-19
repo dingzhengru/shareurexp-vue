@@ -10,16 +10,15 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import firebaseInit from './firebase-init.js'
 
-// firebaseInit()
-
-console.log(Date.now());
-
 new Vue({
   router,
   store,
   beforeCreate: function(){
     // set user
-    this.$store.dispatch('auth/setAuthStateChanged');
+    this.$store.dispatch('auth/setAuthStateChanged')
+    .then((user) => {
+        console.log('user ready')
+    })
   },
   render: h => h(App),
 }).$mount('#app')

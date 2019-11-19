@@ -1,7 +1,8 @@
 <template>
 <div>
     <h1>User</h1>
-    <p>User: {{ this.$store.getters['auth/getData'].uid }}</p>  
+    <p>Auth User: {{ this.$store.getters['auth/getData'].uid }}</p>  
+    <p>User: {{ getUser }}</p>  
     <p>articles: {{ getArticles }}</p>
     <p>posts: {{ getPosts }}</p>
 </div>
@@ -17,39 +18,71 @@ import _ from 'lodash'
 export default {
     data: function() {
         return {
+            user: null,
             articles: null,
             posts: null
         }
     },
     beforeCreate: function() {
         // 因為不確定$store.state.user甚麼時候準備好
-        // 所以使用setInterval ，直到
+        // 所以使用setInterval ，直到user ready好
+
+        let userTimer = setInterval(() => {
+            console.log('update user')
+
+            // check user ready
+            if(!this.$store.state.auth.isReady)
+                return
+            // check sign in
+            if(!this.$store.state.auth.isSignIn)
+                clearInterval(userTimer)
+
+            this.updateUser().then((data) => {
+                this.user = data;
+                clearInterval(userTimer);
+            });
+        }, 300)
+
         let articlesTimer = setInterval(() => {
-            console.log('updata articles')
-            this.updateArticles()
-            .then((data) => {
+            console.log('update articles')
+
+            // check user ready
+            if(!this.$store.state.auth.isReady)
+                return
+            // check sign in
+            if(!this.$store.state.auth.isSignIn)
+                clearInterval(articlesTimer)
+
+            let user = this.user;
+
+            this.updateArticles(user).then((data) => {
                 this.articles = data
                 clearInterval(articlesTimer)
             })
-            .catch((error) => {
-                if(!this.$store.state.auth.isSignIn)
-                    clearInterval(articlesTimer)
-            })
-        } , 200)
+        } , 1000)
+
         let postsTimer = setInterval(() => {
-            console.log('updata posts')
-            this.updatePosts()
-            .then((data) => {
+            console.log('update posts')
+
+            // check user ready
+            if(!this.$store.state.auth.isReady)
+                return
+            // check sign in
+            if(!this.$store.state.auth.isSignIn)
+                clearInterval(postsTimer)
+
+            let user = this.user;
+
+            this.updatePosts(user).then((data) => {
                 this.posts = data
                 clearInterval(postsTimer)
             })
-            .catch((error) => {
-                if(!this.$store.state.auth.isSignIn)
-                    clearInterval(postsTimer)
-            })
-        }, 200)
+        } , 1000)
     },
     computed: {
+        getUser() {
+            return this.user
+        },
         getArticles() {
             return this.articles
         },
@@ -58,16 +91,23 @@ export default {
         }
     },
     methods: {
-        updateArticles: function() {
-            return new Promise((resolve, reject) => {
-                let user = this.$store.getters['auth/getData']
+        updateUser: function() {
+            let uid = this.$store.getters['auth/getData'].uid || null;
 
-                // check user is ready
-                if(_.isEmpty(user))
-                    reject('user not ready or not sign in')
+            return new Promise((resolve, reject) => {
+                this.$store.dispatch('users/getUserByUid', uid)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => reject(error))
+            })
+        },
+        updateArticles: function(user) {
+            return new Promise((resolve, reject) => {
+                let id = user.id;
 
                 db.collection('articles')
-                  .where('creator', '==' , user.uid)
+                  .where('creator', '==' , id)
                   .get()
                   .then((snapshot) => {
                     if (snapshot.docs.length > 0) {
@@ -80,15 +120,12 @@ export default {
                 })
             })
         },
-        updatePosts: function() {
+        updatePosts: function(user) {
             return new Promise((resolve, reject) => {
-                let user = this.$store.getters['auth/getData']
+                let id = user.id;
 
-                if(_.isEmpty(user))
-                    reject('user not ready or not sign in')
-                
                 db.collection('posts')
-                  .where('creator', '==' , user.uid)
+                  .where('creator', '==' , id)
                   .get()
                   .then((snapshot) => {
                     if (snapshot.docs.length > 0) {

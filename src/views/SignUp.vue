@@ -47,8 +47,6 @@ export default {
                 console.log('signUp:', result.user.email);
                 this.success = '註冊成功'
 
-
-
                 // 另外創一個users的(自己創的collection)
                 delete user.password;
                 user.uid = result.user.uid;

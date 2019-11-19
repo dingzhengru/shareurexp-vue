@@ -8,7 +8,8 @@ export default {
         data: null,
         status: null,
         error: null,
-        isSignIn: null
+        isReady: false,
+        isSignIn: null,
     },
     getters: {
         getData(state) {
@@ -36,6 +37,9 @@ export default {
         setError(state, payload) {
             state.error = payload
         },
+        setReady(state, payload) {
+            state.isReady = payload;
+        },
         setIsSignIn(state, payload) {
             state.isSignIn = payload;
         }
@@ -45,6 +49,9 @@ export default {
             console.log('setAuthStateChanged')
             return new Promise((resolve, reject) => {
                 firebase.auth().onAuthStateChanged((user) => {
+
+                    commit('setReady', true);
+
                     if (user) {
                         commit('setData', user);
                         commit('setIsSignIn', true);
@@ -52,7 +59,7 @@ export default {
                     } else {
                         commit('clearData');
                         commit('setIsSignIn', false);
-                        reject('User is not logged in.');
+                        reject('not sign in.');
                     }
                 });
             });
@@ -60,17 +67,12 @@ export default {
         signUpAction({ commit }, payload) {
             console.log('signUpAction');
 
-            let username = payload.username;
             let email = payload.email;
             let password = payload.password;
 
             return new Promise((resolve, reject) => {
                 firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((result) => {
-                    // update profile
-                    result.user.updateProfile({
-                        displayName: username
-                    });
                     resolve(result);
                 })
                 .catch((error) => {
