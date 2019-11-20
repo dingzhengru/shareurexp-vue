@@ -6,6 +6,7 @@ Vue.use(Vuex)
 import auth from './store-firebase-auth.js'
 import users from './store-firebase-users.js'
 import articles from './store-firebase-articles.js'
+import posts from './store-firebase-posts.js'
 
 export default new Vuex.Store({
   state: {
@@ -17,6 +18,7 @@ export default new Vuex.Store({
   modules: {
     auth: auth,
     users: users,
-    articles: articles
+    articles: articles,
+    posts: posts
   }
 })

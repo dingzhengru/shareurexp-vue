@@ -19,6 +19,15 @@ new Vue({
     .then((user) => {
         console.log('user ready')
     })
+
+    // set articles
+    this.$store.dispatch('articles/getDataAction')
+    
+    // set users
+    this.$store.dispatch('users/getDataAction')
+
+    // set posts
+    this.$store.dispatch('posts/getDataAction')
   },
   render: h => h(App),
 }).$mount('#app')

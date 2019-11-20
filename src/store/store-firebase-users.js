@@ -22,6 +22,12 @@ export default {
         }
     },
     getters: {
+        getData: (state) => {
+            return state.data;
+        },
+        getDataById: (state) => (id) => {
+            return state.data[id];
+        },
         getSortData: (state) => {
             let data = state.data || [];
             let field = state.sort.orderByField;
@@ -131,17 +137,11 @@ export default {
         getDataAction({ state, commit }, payload) {
             console.log('getDataAction');
 
-
-            // Order (使用state.sort排序)
-            let orderByField = state.sort.orderByField;
-            let isAsc = state.sort.isAsc;
-            let sort = 'asc'
-            if(!isAsc)
-                sort = 'desc'
+            // state.data 固定用id排序，不要去動到他本身
 
             return new Promise((resolve, reject) => {
                 db.collection('users')
-                .orderBy(orderByField, sort)
+                .orderBy('id')
                 .get()
                 .then((snapshot) => {
                     let users = snapshot.docs.map(doc => doc.data());

@@ -6,7 +6,10 @@ import User from '../views/User.vue'
 import SignIn from '../views/SignIn.vue'
 import SignOut from '../views/SignOut.vue'
 import SignUp from '../views/SignUp.vue'
+import ArticleRoot from '../views/ArticleRoot.vue'
 import Articles from '../views/Articles.vue'
+import Article from '../views/Article.vue'
+
 
 Vue.use(VueRouter)
 
@@ -38,8 +41,20 @@ const routes = [
   },
   {
     path: '/articles',
-    name: 'articles',
-    component: Articles
+    name: 'articles-root',
+    component: ArticleRoot,
+    children: [
+        {
+          path: '/',
+          name: 'articles',
+          component: Articles
+        },
+        {
+          path: ':id',
+          name: 'article',
+          component: Article
+        }
+    ]
   },
 ]
 

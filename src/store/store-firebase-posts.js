@@ -28,6 +28,16 @@ export default {
         getDataById: (state) => (id) => {
             return state.data[id];
         },
+        getPostsByArticleId: (state) => (id) => {
+            let data = state.data || [];
+            let searchText = id;
+            let searchField = 'article';
+            
+            return data.filter((p) => {
+                if(String(p[searchField]).toLowerCase().includes(searchText.toLowerCase())) 
+                    return p;
+            })
+        },
         getSortData: (state) => {
             let data = state.data || [];
             let field = state.sort.orderByField;
@@ -140,13 +150,13 @@ export default {
             // state.data 固定用id排序，不要去動到他本身
 
             return new Promise((resolve, reject) => {
-                db.collection('articles')
+                db.collection('posts')
                 .orderBy('id')
                 .get()
                 .then((snapshot) => {
-                    let articles = snapshot.docs.map(doc => doc.data());
-                    commit('setData', articles);
-                    resolve(articles);
+                    let posts = snapshot.docs.map(doc => doc.data());
+                    commit('setData', posts);
+                    resolve(posts);
                 })
                 .catch((error) => {
                     reject(error);
@@ -156,20 +166,20 @@ export default {
         addDataAction({ dispatch, commit }, payload) {
             console.log('addDataAction');
 
-            let article = payload;
+            let post = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
-                db.collection('articles').orderBy('id', 'desc').limit(1).get()
+                db.collection('posts').orderBy('id', 'desc').limit(1).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        article.id = Number(doc.data().id) + 1;
-                        db.collection('articles').add(article);
+                        post.id = Number(doc.data().id) + 1;
+                        db.collection('posts').add(post);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(article);
+                        resolve(post);
                     })
                 })
                 .catch((error) => {
@@ -180,10 +190,10 @@ export default {
         removeDataAction({ dispatch, commit }, payload) {
             console.log('removeDataAction');
 
-            let article = payload;
+            let post = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('articles').where('id', '==', article.id).get()
+                db.collection('posts').where('id', '==', post.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -191,7 +201,7 @@ export default {
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(article);
+                        resolve(post);
                     })
                 })
                 .catch((error) => {
@@ -203,15 +213,15 @@ export default {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
-            let article = payload;
+            let post = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('articles')
-                .where('id', '==', article.id).get()
+                db.collection('posts')
+                .where('id', '==', post.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.update(article);
-                        resolve(article);
+                        doc.ref.update(post);
+                        resolve(post);
                     })
                 })
                 .catch((error) => {
