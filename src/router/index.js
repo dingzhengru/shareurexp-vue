@@ -9,8 +9,10 @@ import SignUp from '../views/SignUp.vue'
 import ArticleRoot from '../views/ArticleRoot.vue'
 import Articles from '../views/Articles.vue'
 import Article from '../views/Article.vue'
+import ArticleAdd from '../views/ArticleAdd.vue'
+import ArticleEdit from '../views/ArticleEdit.vue'
 
-
+import PostAdd from '../views/PostAdd.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -50,10 +52,25 @@ const routes = [
           component: Articles
         },
         {
-          path: ':id',
+          path: 'id/:id',
           name: 'article',
           component: Article
-        }
+        },
+        {
+          path: 'add',
+          name: 'article-add',
+          component: ArticleAdd
+        },
+        {
+          path: 'id/:id/post-add',
+          name: 'post-add',
+          component: PostAdd
+        },
+        {
+          path: 'id/:id/edit',
+          name: 'article-edit',
+          component: ArticleEdit
+        },
     ]
   },
 ]

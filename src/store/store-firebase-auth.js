@@ -21,6 +21,9 @@ export default {
         getError(state) {
             return state.error;
         },
+        getCurrentUser(state) {
+            return firebase.auth().currentUser;
+        }
     },
     mutations: {
         setData(state, payload) {

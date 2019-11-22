@@ -1,6 +1,8 @@
 <template>
 <div>
     <h1>Article</h1>
+    <button class="btn btn-warning"
+            @click="goEditArticle()">編輯文章</button>
     <p>id: {{ this.$route.params }}</p>
     <p>article: {{ getArticle }}</p>
     <div class="article">
@@ -8,14 +10,15 @@
             <h1>{{ getArticle.title }}</h1>
         </div>
         <div class="article-body">
-            <div class="article-content">
-                {{ getArticle.content }} (not use v-html)
-            </div>
             <div class="article-content" 
                  v-html="getArticle.content">
             </div>
         </div>
     </div>
+
+    <h2>Posts</h2>
+    <button class="btn btn-success"
+            @click="goPostAdd(getArticle.id)">回覆文章</button>
     <div class="posts"
          v-for="(post, index) in getPosts"
          :key="index">
@@ -23,11 +26,13 @@
             
         </div>
         <div class="post-body">
+            post id: {{ post.id }}
             <div class="post-content"
                  v-html="post.content">
             </div>
-            {{ getUserById(post.creator) }}
+            post user: {{ getUserById(post.creator).id }}
         </div>
+        <hr>
     </div>
 </div>
 </template>
@@ -73,7 +78,20 @@ export default {
         }
     },
     methods: {
-
+        goPostAdd: function(articleId) {
+            this.$router.push({
+                name: 'post-add', 
+                params: { id: articleId }
+            })
+        }, 
+        goEditArticle: function(articleId) {
+            if(!articleId)
+                articleId = this.$route.params.id;
+            this.$router.push({
+                name: 'article-edit', 
+                params: { id: articleId }
+            })
+        }
     }
 }
 </script>

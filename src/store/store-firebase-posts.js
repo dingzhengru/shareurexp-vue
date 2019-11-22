@@ -34,7 +34,7 @@ export default {
             let searchField = 'article';
             
             return data.filter((p) => {
-                if(String(p[searchField]).toLowerCase().includes(searchText.toLowerCase())) 
+                if(p[searchField] == searchText)
                     return p;
             })
         },
@@ -174,6 +174,10 @@ export default {
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         post.id = Number(doc.data().id) + 1;
+                        post.article = Number(post.article);
+                        post.created = new Date(Date.now());
+                        post.editDate = post.created;
+
                         db.collection('posts').add(post);
 
                         // update data(更新state的資料)

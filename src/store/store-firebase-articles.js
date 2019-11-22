@@ -164,6 +164,9 @@ export default {
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         article.id = Number(doc.data().id) + 1;
+                        article.created = new Date(Date.now());
+                        article.editDate = article.created;
+
                         db.collection('articles').add(article);
 
                         // update data(更新state的資料)

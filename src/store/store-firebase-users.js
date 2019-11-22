@@ -28,6 +28,15 @@ export default {
         getDataById: (state) => (id) => {
             return state.data[id];
         },
+        getUserByUid: (state) => (uid) => {
+            let data = state.data || [];
+            let searchText = uid;
+            let searchField = 'uid';
+
+            return data.filter(function(p) {
+                if(p[searchField] == searchText) return p
+            })
+        },
         getSortData: (state) => {
             let data = state.data || [];
             let field = state.sort.orderByField;
@@ -167,6 +176,8 @@ export default {
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         user.id = (Number(doc.data().id) + 1) || 0;
+                        user.created = new Date(Date.now());
+                        user.images = [];
 
                         db.collection('users').add(user);
 
