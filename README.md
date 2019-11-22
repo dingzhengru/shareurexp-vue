@@ -1,7 +1,6 @@
 # shareurexp-vue(demo project)
 
 *  <a href="#project-setup">Project setup</a>
-
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
 *  <a href="#vue2-editor">vue2-editor</a>
