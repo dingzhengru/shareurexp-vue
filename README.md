@@ -30,7 +30,7 @@
 import { firebase, db, actionCodeSettings } from '../firebase.js'
 ```
 
-firebase.js
+**firebase.js**
 ```
 const firebase = require('firebase/app');
 require('firebase/firestore');
@@ -58,7 +58,7 @@ export { firebase, db, actionCodeSettings };
 ```
 
 ## bootstrap
-*  import css
+*  import css  
 **main.js**  
 ```import 'bootstrap/dist/css/bootstrap.min.css'```  
 
