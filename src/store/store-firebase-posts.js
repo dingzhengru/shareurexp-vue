@@ -218,6 +218,8 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let post = payload;
+            post.editDate = new Date(Date.now());
+
 
             return new Promise((resolve, reject) => {
                 db.collection('posts')

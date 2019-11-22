@@ -208,6 +208,8 @@ export default {
 
             let article = payload;
 
+            article.editDate = new Date(Date.now());
+
             return new Promise((resolve, reject) => {
                 db.collection('articles')
                 .where('id', '==', article.id).get()

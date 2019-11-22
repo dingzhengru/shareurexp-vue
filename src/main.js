@@ -7,8 +7,14 @@ import store from './store'
 Vue.config.productionTip = false
 
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap'
+
+import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
+import '@fortawesome/fontawesome-free/css/solid.min.css'
 
 import firebaseInit from './firebase-init.js'
+
+
 
 new Vue({
   router,

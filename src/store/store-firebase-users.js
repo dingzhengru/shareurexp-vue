@@ -177,6 +177,7 @@ export default {
                     snapshot.forEach((doc) => {
                         user.id = (Number(doc.data().id) + 1) || 0;
                         user.created = new Date(Date.now());
+                        user.editDate = user.created;
                         user.images = [];
 
                         db.collection('users').add(user);
@@ -220,6 +221,7 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let user = payload;
+            user.editDate = new Date(Date.now());
 
             return new Promise((resolve, reject) => {
                 db.collection('users')
