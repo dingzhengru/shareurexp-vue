@@ -2,7 +2,7 @@
 <div>
     <div class="article-search">
         <div class="row article-search-row">
-            <div class="col-8">
+            <div class="col-sm-12 col-md-8">
                 <div class="input-group flex-nowrap">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="addon-wrapping">
@@ -15,6 +15,8 @@
                            placeholder="搜尋文章" 
                            aria-describedby="addon-wrapping"
                     />
+                    <i class="searchclear fas fa-times-circle"
+                       @click="search.text=''"></i>
                     <div class="input-group-append">
                         <select class="form-control select-custom"
                                 v-model="search.field">
@@ -26,77 +28,48 @@
                         </select>
                     </div>
                 </div>
-
-            </div>
-            <div class="col"></div>
-        </div>
-    </div>
-    <!-- article search -->
-    <!-- articles -->
-    <!-- <div class="articles container">
-        <div class="row articles-head-row">
-            <div class="col" @click="sortArticles('id')">#</div>
-            <div class="col" @click="sortArticles('title')">title</div>
-            <div class="col" @click="sortArticles('creator')">creator</div>
-            <div class="col" @click="sortArticles('created')">created</div>
-            <div class="col" >reply</div>
-        </div>
-        <div class="articles-body">
-            <div class="row articles-row" 
-                 v-for="(article, index) in getArticlesFilter"
-                 :key="index"
-                 @click="pushToArticle(article.id)">
-                <div class="col">{{ article.id }}</div>
-                <div class="col">{{ article.title }}</div>
-                <div class="col">{{ getUsers[article.creator].username }}</div>
-                <div class="col">{{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm:ss') }}</div>
-                <div class="col">{{ article.posts ? article.posts.length : 0 }}</div>
-            </div>
-        </div>
-    </div> -->
-
-
-<div class="articles">
-    <div class="row articles-row"
-         v-for="(article, index) in getArticlesFilter"
-         :key="index"> 
-        <div class="col-6 articles-left">
-            <div class="articles-title">
-                {{ article.title }}
-            </div>
-            <div class="articles-content"
-                 v-html="limitContent(article.content)">
-            </div>
-        </div>
-        <div class="col-6 articles-right">
-            <div class="articles-tags">
-                <span class="badge badge-success">
-                    {{ getSchools[article.school] ? getSchools[article.school].name : '' }}
-                </span>
-                <span class="badge badge-info"
-                      v-for="(tag, index) in article.tags"
-                      :key="index">
-                    {{ getTags[tag].name }}
-                </span>
-            </div>
-            <i class="fa fa-user fa-1x"></i> 
-            <a>{{ getUsers[article.creator].username }}</a>
-            <div>
-                <span class="fa fa-thumbs-up fa-1x"></span> 
-                推數
-                <span class="fa fa-comment fa-1x"></span> 
-                {{ article.posts.length }}
-                <span class="fa fa-clock-o fa-1x"></span> 
-                {{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm:ss') }}
             </div>
         </div>
     </div>
-</div>
+    <div class="articles">
+        <div class="row articles-row"
+             v-for="(article, index) in getArticlesFilter"
+             :key="index"> 
+            <div class="col-sm-6 col-md-8 articles-left">
+                <div class="articles-title"
+                     @click="goArticle(article.id)">
+                    {{ article.title }}
+                </div>
+                <div class="articles-content"
+                     v-html="limitContent(article.content)">
+                </div>
+            </div>
+            <div class="col articles-right">
+                <div class="articles-tags">
+                    <span class="badge badge-success">
+                        {{ getSchools[article.school] ? getSchools[article.school].name : '' }}
+                    </span>
+                    <span class="badge badge-info"
+                          v-for="(tag, index) in article.tags"
+                          :key="index">
+                        {{ getTags[tag] ? getSchools[tag].name : '' }}
+                    </span>
+                </div>
+                <i class="fa fa-user fa-1x"></i> 
+                <a>{{ getUsers[article.creator].username }}</a>
+                <div>
+                    <span class="fa fa-thumbs-up fa-1x"></span> 
+                    {{ article.push }}
+                    <span class="fa fa-comment fa-1x"></span> 
+                    {{ article.posts.length }}
+                    <span class="fa fa-clock-o fa-1x"></span> 
+                    {{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm:ss') }}
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-
-
-
+    <!-- 分頁 -->
 
     <div class="pagination">
         <Pagination 
@@ -138,11 +111,12 @@ export default {
                 currentPage: 1,
                 pageSize: 5
             },
-            contentSize: 30
+            contentSize: 50
         }
     },
     created: function() {
-        this.$store.commit('articles/setPage', this.pagination)
+        this.$store.commit('articles/setPage', this.pagination);
+        this.search.text = this.$route.query.searchText || '';
     },
     computed: {
         getArticles() {
@@ -162,7 +136,7 @@ export default {
         },
     },
     methods: {
-        pushToArticle(id) {
+        goArticle(id) {
             this.$router.push({ 
                 name: 'article', 
                 params: { id: id }
@@ -194,7 +168,6 @@ export default {
             this.$store.commit('articles/setSearch', this.search);
         },
         'pagination.currentPage': function(value, oldValue) {
-            console.log(123);
             this.$store.commit('articles/setPage', this.pagination);
         },
         'pagination.pageSize': function(value, oldValue) {
@@ -205,22 +178,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-// .articles-head-row {
-//     background-color: #1ABC9C;
-//     font-weight: bold;
-//     font-size: 20px;
-// }
-
-// .articles-row {
-//     padding-top: 5px;
-//     padding-bottom: 5px;
-//     border-top: 1px black solid;
-// }
-// .articles-row:hover {
-//     background-color: gray;
-//     cursor: pointer;
-// }
 
 
 .article-search {
@@ -234,25 +191,48 @@ export default {
         border-color: none;
         box-shadow: none;
     }
+    .searchclear {
+        position: absolute;
+        right: 120px;
+        top: 0;
+        bottom: 0;
+        height: 14px;
+        margin: auto;
+        font-size: 14px;
+        cursor: pointer;
+        color: #ccc;
+    }
 }
 
 .articles {
+    padding-bottom: 20px;
+
     .articles-row {
         font-family: Microsoft YaHei;
         border-top: 1px solid #F0F3F4; 
         padding-bottom: 10px;
+
+        &:nth-child(even) {
+            background-color: #F0F3F4;
+        }
         &:first-child {
             border-top: 0px; 
         }
         .articles-title {
             font-size: 1.5rem;
+            cursor: pointer;
+            color: black;
+        }
+        .articles-title:hover {
+            color: #7F8C8D;
+            text-decoration: none;
         }
         .articles-content {
             font-size: 18px;
         }
         .articles-tags {
             span {
-                font-size: 14px;
+                font-size: 0.9rem;
                 margin-right: 2px;
             }
         }

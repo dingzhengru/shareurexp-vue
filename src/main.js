@@ -12,6 +12,7 @@ import 'bootstrap'
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
 import '@fortawesome/fontawesome-free/css/solid.min.css'
 
+import 'vue-select/dist/vue-select.css'
 
 import firebaseInit from './firebase-init.js'
 

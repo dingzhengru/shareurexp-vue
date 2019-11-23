@@ -33,6 +33,7 @@ export default {
                 creator: null,
                 created: '',
                 editDate: '',
+                push: 0
             },
         }
     },

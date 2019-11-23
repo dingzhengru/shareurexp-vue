@@ -9,7 +9,7 @@
       <router-link to="/articles">Articles</router-link> |
       <router-link to="/articles/add">AddArticle</router-link> |
     </div> -->
-<nav id="navbar" class="navbar navbar-expand-lg navbar-custom ">
+<nav id="navbar" class="navbar navbar-expand-sm navbar-custom">
     <router-link to="/" class="navbar-brand">
         <img src="https://i.imgur.com/qz3f7tJ.png"
              height="50"
@@ -28,6 +28,9 @@
             </li>
             <li class="nav-item">
                 <router-link class="nav-link" to="/articles/add">ArticleAdd</router-link>
+            </li>
+            <li class="nav-item">
+                <router-link class="nav-link" to="/tags">Tags</router-link>
             </li>
             <li class="nav-item">
                 <router-link class="nav-link" to="/user">User</router-link>
@@ -125,6 +128,7 @@ html, body, #app{
         }
     }
     button.navbar-toggler {
+        color: #1d525f;
         .navbar-collapse-icon:hover {
             color: #FAF0E6;
         }
@@ -136,13 +140,13 @@ main.container {
     box-shadow: 0px 0px 10px 3px #888888; 
     position: relative;
     min-height: 100%;
+    padding-top: 10px;
 }
 
 // footer
 footer {
     background-color: #135A77;
     height: 50px;
-    
     clear: both;
     a { color: #FAF0E6; }
     a:hover { color: #C7B19C;  }

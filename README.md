@@ -4,6 +4,7 @@
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
 *  <a href="#vue2-editor">vue2-editor</a>
+*  <a href="#vue-select">vue-select</a>
 *  <a href="#axios">axios</a>
 *  <a href="#imgur-api">imgur api</a>
 *  <a href="#lodash">lodash</a>
@@ -78,6 +79,26 @@ components: { VueEditor }
     useCustomImageHandler
     @image-added="handleImageAdded"
 ></vue-editor>
+```
+## vue-select
+*  v-model 放被選的值(參數)
+*  label 選擇要顯示的欄位
+*  :options 放data
+*  :reduce 把值改成object裡的一個欄位
+
+**{ id: 0, name: '' } 要指定值是id，顯示的是name的話 name => name.id**  
+main.js  
+```import 'vue-select/dist/vue-select.css'```  
+.vue
+```
+<v-select label="name"
+          :reduce="name => name.id"
+          :options="getTags"
+          v-model="article.tags"
+          multiple 
+          placeholder="選擇科系(複選)"/>
+
+import vSelect from 'vue-select'
 ```
 
 ## axios
@@ -158,11 +179,4 @@ data: function() {
         dayjs: dayjs
     }
 }
-```
-# 正則表達式
-*  以下列出在這此專案有用到的正則表達式
-
-article.content 去除html tag ```/<[^>]*>/g```  
-```
-content.replace(/<[^>]*>/g, '')
 ```

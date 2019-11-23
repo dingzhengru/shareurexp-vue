@@ -11,8 +11,9 @@ import Articles from '../views/Articles.vue'
 import Article from '../views/Article.vue'
 import ArticleAdd from '../views/ArticleAdd.vue'
 import ArticleEdit from '../views/ArticleEdit.vue'
-
 import PostAdd from '../views/PostAdd.vue'
+import Tags from '../views/Tags.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -72,6 +73,11 @@ const routes = [
           component: ArticleEdit
         },
     ]
+  },
+  {
+    path: '/tags',
+    name: 'tags',
+    component: Tags
   },
 ]
 

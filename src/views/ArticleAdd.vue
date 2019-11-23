@@ -1,20 +1,68 @@
 <template>
 <div>
-    <h1>New Article</h1>
-    {{ article }}
-    <form @submit.prevent="addArticle(article)">
-        <div>
-            <input v-model="article.title">
+    <div class="message-div row">
+        <div class="col"></div>
+        <div class="col-8 text-center">
+            <div class="alert alert-danger"
+                 v-for="(error, index) in errors"
+                 :key="index">
+                {{ error }}
+            </div>
         </div>
-        <div>
-            <vue-editor 
-                id="editor"
-                useCustomImageHandler
-                @image-added="handleImageAdded"
-                v-model="article.content" 
-            ></vue-editor>
+        <div class="col"></div>
+    </div>
+    <h2>撰寫新文章</h2>
+    <form class="article-form" 
+          @submit.prevent="addArticle(article)">
+        <div class="row">
+            <div class="article-title col-12">
+                <input class="form-control" 
+                       v-model="article.title"
+                       placeholder="輸入標題"
+                       required>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">送出</button>
+        <div class="row">
+            <div class="article-content col-12">
+                <vue-editor 
+                    id="editor"
+                    useCustomImageHandler
+                    @image-added="handleImageAdded"
+                    :editorToolbar="editorToolbar"
+                    v-model="article.content" 
+                    placeholder="輸入內容"
+                    required
+                ></vue-editor>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <v-select label="name"
+                          :reduce="name => name.id"
+                          :options="getSchools"
+                          v-model="article.school" 
+                          placeholder="選擇學校(可輸入文字搜尋)"
+                          required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <v-select label="name"
+                          :reduce="name => name.id"
+                          :options="getTags"
+                          v-model="article.tags"
+                          multiple 
+                          placeholder="選擇科系(複選)"
+                          required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    送出
+                </button>
+            </div>
+        </div>
     </form>
 </div>
 </template>
@@ -22,15 +70,16 @@
 
 <script>
 
-import { db } from '../firebase.js';
-import _ from 'lodash';
+import _ from 'lodash'
 import axios from 'axios';
 import { VueEditor } from 'vue2-editor';
 import imgurClient from '../imgur-api.js'
+import vSelect from 'vue-select'
 
 export default {
     components: { 
-        VueEditor 
+        VueEditor,
+        vSelect
     },
     data: function() {
         return {
@@ -40,10 +89,34 @@ export default {
                 content: '',
                 creator: null,
                 posts: [],
+                school: null,
+                tags: [],
                 created: '',
                 editDate: '',
+                push: 0
             },
+            contentMin: 10,
+            titleMax: 30,
+            errors: [],
+            editorToolbar:[
+                ["bold", "italic", "underline", "strike"],
 
+                [
+                    { align: "" },
+                    { align: "center" },
+                    { align: "right" },
+                ],
+
+                [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+
+                [{ indent: "-1" }, { indent: "+1" }],
+
+                [{ color: [] }, { background: [] }],
+
+                ["link", "image", "video", "formula"],
+
+                ["clean"]
+            ]
         }
     },
     beforeCreate: function() {
@@ -68,13 +141,21 @@ export default {
         }, 500)
     },
     computed: {
-        
+        getTags() {
+            return this.$store.getters['tags/getData'];
+        },
+        getSchools() {
+            return this.$store.getters['schools/getData'];
+        }
     },
     methods: {
         addArticle: function(article) {
+            this.errors = [];
+
+            if(!this.validArticle(article))
+                return
             this.$store.dispatch('articles/addDataAction', article)
             .then((data) => {
-                console.log('add article success')
                 this.$router.push({
                     name: 'article',
                     params: { id: data.id }
@@ -83,6 +164,29 @@ export default {
             .catch((error) => {
                 console.log(error);
             })
+        },
+        validArticle: function(article) {
+            let errors = [];
+            let contentMin = this.contentMin
+            let titleMax = this.titleMax
+
+            if(_.isEmpty(article.title)) {
+                errors.push('標題不能為空')
+            }
+            if(article.title.length > titleMax) {
+                errors.push('標題過長')
+            }
+            if(_.isEmpty(article.content) || article.content.length <= contentMin ) {
+                errors.push('內容過短')
+            }
+            if(article.school == null) {
+                errors.push('請選擇一所學校')
+            }
+            if(_.isEmpty(article.tags)) {
+                errors.push('最少選擇一個系所')
+            }
+            this.errors = errors;
+            return _.isEmpty(errors)
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 
@@ -115,27 +219,22 @@ export default {
                 Editor.insertEmbed(cursorLocation, "image", url);
                 resetUploader();
             })
-
-            // my express server
-            // axios({
-            //     url: 'http://localhost:3000/upload-image',
-            //     method: 'POST',
-            //     data: formData,
-            // }).then(result => {
-            //     console.log(result.data);
-            //     let url = result.data; // Get url from response
-            //     Editor.insertEmbed(cursorLocation, "image", url);
-            //     resetUploader();
-            // })
-            // .catch(err => {
-            //     console.log(err);
-            // });
         }
     }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
+.message-div {
+    
+}
+
+.article-form {
+    .row {
+        padding-bottom: 20px;
+    }
+}
 
 .article-editor-div {
     margin-left: 50px;
