@@ -68,7 +68,7 @@ export default {
         }, 500)
     },
     computed: {
-
+        
     },
     methods: {
         addArticle: function(article) {

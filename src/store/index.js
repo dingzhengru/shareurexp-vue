@@ -7,6 +7,9 @@ import auth from './store-firebase-auth.js'
 import users from './store-firebase-users.js'
 import articles from './store-firebase-articles.js'
 import posts from './store-firebase-posts.js'
+import schools from './store-firebase-schools.js'
+import tags from './store-firebase-tags.js'
+
 
 export default new Vuex.Store({
   state: {
@@ -19,6 +22,8 @@ export default new Vuex.Store({
     auth: auth,
     users: users,
     articles: articles,
-    posts: posts
+    posts: posts,
+    schools: schools,
+    tags: tags
   }
 })

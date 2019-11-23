@@ -39,36 +39,22 @@ function initCollection(db, coll, data) {
     .catch((error) => { console.log("initCollection Error:", error) });
 }
 
+function addIncrementId(items) {
+    return items.map((item, index) => {
+        item.id = index
+        return item
+    })
+}
+
 import { firebase, db } from './firebase.js'
 
-const articles = [
-    {
-        title: 'title',
-        content: `article content`, 
-        created: firebase.firestore.Timestamp.fromDate(new Date(Date.now())),
-        creator: 'users/Zes3quB0X3NZAZfs4q2upLyf1LZ2',
-        posts: null,
-    }
-]
-
-const posts = [
-    {
-        article: 'articles/GTxS0P4fGO3yDX4jeTE6',
-        content: `post content`, 
-        created: firebase.firestore.Timestamp.fromDate(new Date(Date.now())),
-        creator: 'users/Zes3quB0X3NZAZfs4q2upLyf1LZ2',
-    }
-]
-
-const users = [
-    {
-        uid: 'Zes3quB0X3NZAZfs4q2upLyf1LZ2',
-        articles: [],
-        posts: []
-    }
-]
+import schools from './schools.js'
+import tags from './tags.js'
 
 export default () => {
     // initCollection(db, 'articles', articles);
     // initCollection(db, 'posts', posts);
+
+    // initCollection(db, 'schools', addIncrementId(schools))
+    // initCollection(db, 'tags', addIncrementId(tags))
 }

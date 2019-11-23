@@ -8,7 +8,7 @@
 *  <a href="#imgur-api">imgur api</a>
 *  <a href="#lodash">lodash</a>
 *  <a href="#dayjs">dayjs</a>
-
+*  <a href="#正則表達式">正則表達式</a>
 ## Project setup
 ```npm install```  
 
@@ -158,4 +158,11 @@ data: function() {
         dayjs: dayjs
     }
 }
+```
+# 正則表達式
+*  以下列出在這此專案有用到的正則表達式
+
+article.content 去除html tag ```/<[^>]*>/g```  
+```
+content.replace(/<[^>]*>/g, '')
 ```

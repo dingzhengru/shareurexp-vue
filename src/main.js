@@ -12,8 +12,10 @@ import 'bootstrap'
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
 import '@fortawesome/fontawesome-free/css/solid.min.css'
 
+
 import firebaseInit from './firebase-init.js'
 
+// firebaseInit()
 
 
 new Vue({
@@ -34,6 +36,12 @@ new Vue({
 
     // set posts
     this.$store.dispatch('posts/getDataAction')
+
+    // set schools
+    this.$store.dispatch('schools/getDataAction')
+
+    // set tags
+    this.$store.dispatch('tags/getDataAction')
   },
   render: h => h(App),
 }).$mount('#app')
