@@ -3,6 +3,7 @@
 *  <a href="#project-setup">Project setup</a>
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
+*  <a href="#fort-awesome">fort-awesome</a>
 *  <a href="#vue2-editor">vue2-editor</a>
 *  <a href="#vue-select">vue-select</a>
 *  <a href="#axios">axios</a>
@@ -59,9 +60,23 @@ export { firebase, db, actionCodeSettings };
 ```
 
 ## bootstrap
-*  import css  
+*  import css & js in main.js
+*  用於置左, 置右 ml-auto, mr-auto(margin-left: auto; , margin-right: auto; )
+
 **main.js**  
-```import 'bootstrap/dist/css/bootstrap.min.css'```  
+```
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap'
+```  
+## fort-awesome
+*  import css & js in main.js
+
+```npm install --save-dev @fortawesome/fontawesome-free```  
+**main.js**
+```
+import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
+import '@fortawesome/fontawesome-free/css/solid.min.css'
+```
 
 ## vue2-editor
 
@@ -160,7 +175,7 @@ handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 
 ## lodash
 列出幾個比較常用的  
-*  isEmpty() 判斷是不是空值(null, {}, [], undefined, )
+*  isEmpty() 判斷是不是空值(null, {}, [], undefined, **數字也會被判斷為空值**)
 *  clonedeep() 深拷貝
 ```
 import _ from 'lodash'

@@ -61,10 +61,10 @@ export default {
         
     },
     computed: {
-        getSchools() {
+        getSchools: function() {
             return this.$store.getters['schools/getSearchData'];
         },
-        getTags() {
+        getTags: function() {
             return this.$store.getters['tags/getSearchData'];
         }
     },

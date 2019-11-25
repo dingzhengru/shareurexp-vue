@@ -13,6 +13,7 @@ import ArticleAdd from '../views/ArticleAdd.vue'
 import ArticleEdit from '../views/ArticleEdit.vue'
 import PostAdd from '../views/PostAdd.vue'
 import Tags from '../views/Tags.vue'
+import PostEdit from '../views/PostEdit.vue'
 
 Vue.use(VueRouter)
 
@@ -71,6 +72,11 @@ const routes = [
           path: 'id/:id/edit',
           name: 'article-edit',
           component: ArticleEdit
+        },
+        {
+          path: 'id/:id/post/:postId/post-edit',
+          name: 'post-edit',
+          component: PostEdit
         },
     ]
   },

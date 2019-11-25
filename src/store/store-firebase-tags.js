@@ -1,4 +1,4 @@
-import { db } from '../firebase.js'
+import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
@@ -26,7 +26,8 @@ export default {
             return state.data;
         },
         getDataById: (state) => (id) => {
-            return state.data[id];
+            let data = state.data || [];
+            return data.find(item => item.id == id)
         },
         getSortData: (state) => {
             let data = state.data || [];
@@ -104,7 +105,6 @@ export default {
     },
     mutations: {
         setData(state, payload) {
-            console.log('setData', payload);
             state.data = payload;
         },
         setStatus(state, payload) {
@@ -117,11 +117,9 @@ export default {
             state.sort = payload;
         },
         setSearch(state, payload) {
-            console.log('setSearch', payload);
             state.search = payload;
         },
         setPage(state, payload) {
-            console.log('setPage', payload);
             state.pagination = payload;
         }
     },
@@ -159,7 +157,7 @@ export default {
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         tag.id = (Number(doc.data().id) + 1) || 0;
-                        tag.created = new Date(Date.now());
+                        tag.created = firebase.firestore.Timestamp.fromDate(new Date());
                         tag.editDate = tag.created;
                         tag.images = [];
 
@@ -204,7 +202,7 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let tag = payload;
-            tag.editDate = new Date(Date.now());
+            tag.editDate = new firebase.firestore.Timestamp.fromDate(new Date());
 
             return new Promise((resolve, reject) => {
                 db.collection('tags')

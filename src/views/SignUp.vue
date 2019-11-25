@@ -1,6 +1,22 @@
 <template>
 <div>
     <h1>Sign Up</h1>
+
+    <div class="msg">
+        <div class="row">
+            <div class="col-12" v-if="success">
+                <div class="alert alert-success text-center">
+                    {{ success }}
+                </div>
+            </div>
+            <div class="col-12" v-if="error">
+                <div class="alert alert-danger text-center">
+                    {{ error }}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form @submit.prevent="signUp(user)">
         username: <input type="text" v-model="user.username"> <br>
         email: <input type="text" v-model="user.email"> <br>
@@ -11,7 +27,9 @@
     <p>username: {{ user.username }}</p>
     <p>email: {{ user.email }}</p>
     <p>pass: {{ user.password }}</p>
-    User: {{ this.$store.getters['auth/getData'] }}
+    <p>User: {{ this.$store.getters['auth/getData'] }}</p>
+    <p>current user: {{ this.$store.getters['users/getCurrentUser'] }}</p>
+
 </div>
 </template>
 
@@ -34,42 +52,46 @@ export default {
         }
     },
     beforeCreate: function() {
-        setTimeout(() => {
-            let auth = this.$store.state.auth.data
-            if(!_.isEmpty(auth))
-                this.$router.push('/');
-        }, 1000);
+        // setTimeout(() => {
+        //     let auth = this.$store.state.auth.data
+        //     if(!_.isEmpty(auth))
+        //         this.$router.push('/');
+        // }, 100);
     },
     methods: {
         signUp: function(user) {
             this.$store.dispatch('auth/signUpAction', user)
             .then((result) => {
-                console.log('signUp:', result.user.email);
                 this.success = '註冊成功'
 
-                // 另外創一個users的(自己創的collection)
-                delete user.password;
-                user.uid = result.user.uid;
-                user.email = result.user.email;
-                user.created = new Date(Date.now());
-                this.$store.dispatch('users/addDataAction', user)
-
                 // Sign in
-                // this.$store.dispatch('auth/signInAction', user)
-                // .then((result) => {
+                this.$store.dispatch('auth/signInAction', user)
+                .then((result) => {
 
-                //     console.log('登入成功:', result.user.email);
+                    console.log('登入成功:', result.user.email);
 
-                //     // send Email
-                //     this.$store.dispatch('auth/sendEmailVerification', result.user)
-                //     .then(() => {
-                //         console.log('send email:', result.user.email);
-                //         this.message = '已發送驗證信件，請至信箱驗證'
-                //     })
-                //     .catch((error) => {
-                //         console.log(error);
-                //     })
-                // })
+                    // 刪除密碼，另外創一個users的(自己創的collection)
+                    delete user.password;
+                    user.uid = result.user.uid;
+                    this.$store
+                        .dispatch('users/addDataAction', user)
+                        .then(data => {
+                            this.$store.commit('users/setCurrentUser', data);
+                        })
+                    // set current user to store.users
+                    
+
+
+                    // send Email
+                    // this.$store.dispatch('auth/sendEmailVerification', result.user)
+                    // .then(() => {
+                    //     console.log('send email:', result.user.email);
+                    //     this.message = '已發送驗證信件，請至信箱驗證'
+                    // })
+                    // .catch((error) => {
+                    //     console.log(error);
+                    // })
+                })
             })
             .catch((error) => {
                 this.error = error;

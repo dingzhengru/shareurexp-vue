@@ -1,4 +1,4 @@
-import { db } from '../firebase.js'
+import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
@@ -26,7 +26,12 @@ export default {
             return state.data;
         },
         getDataById: (state) => (id) => {
-            return state.data[id];
+            let data = state.data || [];
+            return data.find(item => item.id == id)
+        },
+        getArticlesByUserId: (state) => (id) => {
+            let data = state.data || [];
+            return data.filter(item => item.creator == id)
         },
         getSearchArticles: (state) => (users) => {
             let data = state.data || [];
@@ -186,7 +191,6 @@ export default {
     },
     mutations: {
         setData(state, payload) {
-            console.log('setData', payload);
             state.data = payload;
         },
         setStatus(state, payload) {
@@ -282,14 +286,14 @@ export default {
 
             let article = payload;
 
-            article.editDate = new Date(Date.now());
-
+            article.editDate = firebase.firestore.Timestamp.fromDate(new Date())
+            
             return new Promise((resolve, reject) => {
                 db.collection('articles')
                 .where('id', '==', article.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.update(article);
+                        doc.ref.update(article)
                         resolve(article);
                     })
                 })

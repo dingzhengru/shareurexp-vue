@@ -1,4 +1,4 @@
-import { db } from '../firebase.js'
+import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
@@ -6,8 +6,7 @@ export default {
     namespaced: true,
     state: {
         data: null,
-        status: null,
-        error: null,
+        currentUser: null,
         sort: {
             orderByField: 'id',
             isAsc: true
@@ -22,22 +21,21 @@ export default {
         }
     },
     getters: {
-        getData: (state) => {
+        getData: function(state) {
             return state.data;
         },
+        getCurrentUser: function(state) {
+            return state.currentUser
+        },
         getDataById: (state) => (id) => {
-            return state.data[id];
+            let data = state.data || [];
+            return data.find(item => item.id == id)
         },
         getUserByUid: (state) => (uid) => {
-            let data = state.data || [];
-            let searchText = uid;
-            let searchField = 'uid';
-
-            return data.filter(function(p) {
-                if(p[searchField] == searchText) return p
-            })
+            let data = state.data;
+            return data.find(item => item.uid == uid)
         },
-        getSortData: (state) => {
+        getSortData: function(state) {
             let data = state.data || [];
             let field = state.sort.orderByField;
             let isAsc = state.sort.isAsc;
@@ -49,7 +47,7 @@ export default {
                     return a[field] < b[field] ? 1 : -1;
             });
         },
-        getSearchData: (state) => {
+        getSearchData: function(state) {
             let data = state.data || [];
             let searchText = state.search.text;
             let searchField = state.search.field;
@@ -68,7 +66,7 @@ export default {
                 })
             }
         },
-        getPageData(state) {
+        getPageData: function(state) {
             let currentPage = state.pagination.currentPage;
             let pageSize = state.pagination.pageSize;
             let startAt = pageSize * (currentPage - 1);
@@ -78,7 +76,7 @@ export default {
 
             return data.slice(startAt, endAt);
         },
-        getFilterData(state, getters) {
+        getFilterData: function(state, getters) {
             // 取搜尋後再分割頁面的資料
 
             // page
@@ -121,24 +119,18 @@ export default {
     },
     mutations: {
         setData(state, payload) {
-            console.log('setData', payload);
             state.data = payload;
         },
-        setStatus(state, payload) {
-            state.status = payload;
-        },
-        setError(state, payload) {
-            state.error = payload
+        setCurrentUser(state, payload) {
+            state.currentUser = payload;
         },
         setSort(state, payload) {
             state.sort = payload;
         },
         setSearch(state, payload) {
-            console.log('setSearch', payload);
             state.search = payload;
         },
         setPage(state, payload) {
-            console.log('setPage', payload);
             state.pagination = payload;
         }
     },
@@ -176,7 +168,7 @@ export default {
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         user.id = (Number(doc.data().id) + 1) || 0;
-                        user.created = new Date(Date.now());
+                        user.created = firebase.firestore.Timestamp.fromDate(new Date());
                         user.editDate = user.created;
                         user.images = [];
 
@@ -198,7 +190,8 @@ export default {
             console.log('removeDataAction');
 
             let user = payload;
-
+            user.editDate = new firebase.firestore.Timestamp.fromDate(new Date());
+            
             return new Promise((resolve, reject) => {
                 db.collection('users').where('id', '==', user.id).get()
                 .then((snapshot) => {

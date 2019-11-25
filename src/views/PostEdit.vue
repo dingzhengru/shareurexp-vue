@@ -13,7 +13,7 @@
     </div>
     <h2>回覆文章: {{ getArticle.title }}</h2>
     <form class="post-form" 
-          @submit.prevent="addPost(post)">
+          @submit.prevent="editPost(getPost)">
         <div class="row">
             <div class="post-content col-12">
                 <vue-editor 
@@ -21,7 +21,7 @@
                     useCustomImageHandler
                     @image-added="handleImageAdded"
                     :editorToolbar="editorToolbar"
-                    v-model="post.content" 
+                    v-model="getPost.content" 
                     placeholder="輸入內容"
                     required
                 ></vue-editor>
@@ -41,9 +41,11 @@
 
 <script>
 
+import _ from 'lodash'
 import axios from 'axios';
 import { VueEditor } from 'vue2-editor';
 import imgurClient from '../imgur-api.js'
+import editorToolbar from '../editor-toolbar.js'
 
 export default {
     components: { 
@@ -51,74 +53,31 @@ export default {
     },
     data: function() {
         return {
-            post: {
-                id: null,
-                article: null,
-                content: '',
-                creator: null,
-                created: '',
-                editDate: '',
-                pushs: []
-            },
             errors: [],
-            editorToolbar:[
-                ["bold", "italic", "underline", "strike"],
-
-                [
-                    { align: "" },
-                    { align: "center" },
-                    { align: "right" },
-                ],
-
-                [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
-
-                [{ indent: "-1" }, { indent: "+1" }],
-
-                [{ color: [] }, { background: [] }],
-
-                ["link", "image", "video", "formula"],
-
-                ["clean"]
-            ]
+            editorToolbar: editorToolbar
         }
     },
     created: function() {
-        this.post.article = Number(this.$route.params.id)
-
-        let userTimer = setInterval(() => {
-            console.log('update user')
-
-            // check user ready
-            if(!this.$store.state.auth.isReady) 
-                return
-            // check sign in
-            if(!this.$store.state.auth.isSignIn)
-                clearInterval(userTimer)
-
-            let uid = this.$store.getters['auth/getData'].uid;
-
-            // this.article.creator = this.$store.getters['users/getUserByUid'](uid)
-            
-            this.$store.dispatch('users/getUserByUid', uid).then((data) => {
-                this.post.creator = data.id;
-                clearInterval(userTimer)
-            })
-        }, 500)
+        
+        
     },
     computed: {
+        getPost: function() {
+            let id = this.$route.params.postId
+            return this.$store.getters['posts/getDataById'](id)
+        },
         getArticle: function() {
-            let id = this.$route.params.id;
+            let id = this.getPost.article;
+
+            if(!this.$store.getters['articles/getData'])
+                return {}
             return this.$store.getters['articles/getDataById'](id)
         }
     },
     methods: {
-        addPost: function(post) {
-            this.$store.dispatch('posts/addDataAction', post)
+        editPost: function(post) {
+            this.$store.dispatch('posts/updateDataAction', post)
             .then((data) => {
-                console.log('add post success');
-
-                this.addArticlePosts(data.id);
-
                 this.$router.push({
                     name: 'article',
                     id: this.$route.params.id
@@ -127,11 +86,6 @@ export default {
             .catch((error) => {
                 console.log(error);
             })
-        },
-        addArticlePosts: function(postId) {
-            let article = this.getArticle
-            article.posts.push(postId)
-            this.$store.dispatch('articles/updateDataAction', article);
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 
@@ -157,7 +111,7 @@ export default {
                 let url = result.data.data.link;
 
                 // 將圖片網址加進使用者資料中
-                let user = this.$store.getters['users/getDataById'](this.post.creator);
+                let user = this.$store.getters['users/getDataById'](this.getPost.creator);
                 user.images.push(url);
                 this.$store.dispatch('users/updateDataAction', user);
 
@@ -175,10 +129,6 @@ export default {
 .post-form {
     .row {
         padding-bottom: 20px;
-    }
-    .post-editor-div {
-        margin-left: 50px;
-        width: 800px;
     }
 }
 

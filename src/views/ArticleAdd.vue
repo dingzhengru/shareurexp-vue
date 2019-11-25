@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="getCurrentUser">
     <div class="message-div row">
         <div class="col"></div>
         <div class="col-8 text-center">
@@ -72,8 +72,9 @@
 
 import _ from 'lodash'
 import axios from 'axios';
-import { VueEditor } from 'vue2-editor';
 import imgurClient from '../imgur-api.js'
+import { VueEditor } from 'vue2-editor';
+import editorToolbar from '../editor-toolbar.js';
 import vSelect from 'vue-select'
 
 export default {
@@ -93,51 +94,24 @@ export default {
                 tags: [],
                 created: '',
                 editDate: '',
-                push: 0
+                pushs: [],
             },
             contentMin: 10,
             titleMax: 30,
             errors: [],
-            editorToolbar:[
-                ["bold", "italic", "underline", "strike"],
-
-                [
-                    { align: "" },
-                    { align: "center" },
-                    { align: "right" },
-                ],
-
-                [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
-
-                [{ indent: "-1" }, { indent: "+1" }],
-
-                [{ color: [] }, { background: [] }],
-
-                ["link", "image", "video", "formula"],
-
-                ["clean"]
-            ]
+            editorToolbar: editorToolbar
         }
     },
-    beforeCreate: function() {
-        let userTimer = setInterval(() => {
-            console.log('update user')
-
-            // check user ready
-            if(!this.$store.state.auth.isReady) 
+    created: function() {
+        let userChecker = setInterval(() => {
+            if(!this.authIsReady)
                 return
-            // check sign in
-            if(!this.$store.state.auth.isSignIn)
-                clearInterval(userTimer)
-
-            let uid = this.$store.getters['auth/getData'].uid;
-
-            // this.article.creator = this.$store.getters['users/getUserByUid'](uid)
-            
-            this.$store.dispatch('users/getUserByUid', uid).then((data) => {
-                this.article.creator = data.id;
-                clearInterval(userTimer)
-            })
+            if(this.authIsSignIn == false) {
+                clearInterval(userChecker)
+                this.$router.push('/')
+            } else if(this.authIsSignIn) {
+                clearInterval(userChecker)
+            }
         }, 500)
     },
     computed: {
@@ -146,11 +120,22 @@ export default {
         },
         getSchools() {
             return this.$store.getters['schools/getData'];
-        }
+        },
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        // authIsReady: function() {
+        //     return this.$store.getters['auth/getIsReady'];
+        // },
+        // authIsSignIn: function() {
+        //     return this.$store.getters['auth/getIsSignIn'];
+        // }
     },
     methods: {
         addArticle: function(article) {
             this.errors = [];
+
+            article.creator = this.getCurrentUser.id;
 
             if(!this.validArticle(article))
                 return
@@ -234,11 +219,10 @@ export default {
     .row {
         padding-bottom: 20px;
     }
-}
-
-.article-editor-div {
-    margin-left: 50px;
-    width: 800px;
+    .article-editor-div {
+        margin-left: 50px;
+        width: 800px;
+    }
 }
 
 </style>

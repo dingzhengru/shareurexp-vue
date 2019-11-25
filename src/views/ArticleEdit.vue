@@ -1,75 +1,134 @@
 <template>
-<div>
-    <h1>Article</h1>
-    <p>article: {{ getArticle }}</p>
-    <form @submit.prevent="editArticle(getArticle)">
-        <div class="article">
-            <div class="article-head">
-                <input type="text" 
-                       v-model="getArticle.title">
-            </div>
-            <div class="article-body">
-                <vue-editor 
-                    id="editor"
-                    useCustomImageHandler
-                    @image-added="handleImageAdded"
-                    v-model="getArticle.content" 
-                ></vue-editor>
+<div v-if="getCurrentUser">
+    <div class="message-div row">
+        <div class="col"></div>
+        <div class="col-8 text-center">
+            <div class="alert alert-danger"
+                 v-for="(error, index) in errors"
+                 :key="index">
+                {{ error }}
             </div>
         </div>
-        <button type="submit" class="btn btn-warning">儲存編輯</button>
+        <div class="col"></div>
+    </div>
+    <h2>編輯文章</h2>
+    <form class="form article-form" @submit.prevent="editArticle(getArticle)">
+        <div class="article">
+            <div class="row">
+                <div class="article-title col-12">
+                    <input class="form-control" 
+                           v-model="getArticle.title"
+                           placeholder="輸入標題"
+                           required>
+                </div>
+            </div>
+            <div class="row">
+            <div class="article-content col-12">
+                    <vue-editor 
+                        id="editor"
+                        useCustomImageHandler
+                        @image-added="handleImageAdded"
+                        :editorToolbar="editorToolbar"
+                        v-model="getArticle.content" 
+                        placeholder="輸入內容"
+                    ></vue-editor>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <v-select label="name"
+                          :reduce="name => name.id"
+                          :options="getSchools"
+                          v-model="getArticle.school" 
+                          placeholder="選擇學校(可輸入文字搜尋)"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <v-select label="name"
+                          :reduce="name => name.id"
+                          :options="getTags"
+                          v-model="getArticle.tags"
+                          multiple 
+                          placeholder="選擇科系(複選)"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    儲存編輯
+                </button>
+            </div>
+        </div>
     </form>
 </div>
 </template>
 
 
 <script>
-
-import { db } from '../firebase.js'
-import _ from 'lodash'
-import axios from "axios";
-import { VueEditor } from "vue2-editor";
-
-// 先把store.users以id排序(因users不能刪除，所以id順序能剛好對應)
-// users[id] 就會剛好是對應的user
+import axios from 'axios';
+import imgurClient from '../imgur-api.js'
+import { VueEditor } from 'vue2-editor';
+import editorToolbar from '../editor-toolbar.js';
+import vSelect from 'vue-select'
 
 export default {
     components: { 
-        VueEditor 
+        VueEditor,
+        vSelect
     },
     data: function() {
         return {
-            article: {
-                id: null,
-                title: '',
-                content: '',
-                creator: null,
-                posts: [],
-                created: '',
-                editDate: '',
-            }
+            errors: [],
+            editorToolbar: editorToolbar
         }
     },
     created: function() {
-
+        let userChecker = setInterval(() => {
+            if(!this.authIsReady)
+                return
+            if(this.getIsSignIn == false) {
+                clearInterval(userChecker)
+                this.$router.push('/')
+            }
+            if(this.getCurrentUser.id != this.getArticle.creator) {
+                clearInterval(userChecker)
+                this.$router.push('/')
+            } else {
+                clearInterval(userChecker)
+            }
+        }, 500)
     },
     computed: {
         getArticle: function() {
             let id = this.$route.params.id;
-            if(!this.$store.getters['articles/getData'])
-                return {}
             return this.$store.getters['articles/getDataById'](id)
         },
-        getUserById: (app) => (id) => {
-            if(!app.$store.getters['users/getData'])
-                return {}
+        getUser: (app) => (id) => {
             return app.$store.getters['users/getDataById'](id)
+        },
+        getTags() {
+            return this.$store.getters['tags/getData'];
+        },
+        getSchools() {
+            return this.$store.getters['schools/getData'];
+        },
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        authIsReady: function() {
+            return this.$store.getters['auth/getIsReady'];
+        },
+        authIsSignIn: function() {
+            return this.$store.getters['auth/getIsSignIn'];
         }
     },
     methods: {
         editArticle: function(article) {
             this.$store.dispatch('articles/updateDataAction', article)
             .then((data) => {
+
                 this.$router.push({
                     name: 'article',
                     params: { id: data.id }
@@ -80,7 +139,6 @@ export default {
 
             let formData = new FormData();
             formData.append("image", file);
-            formData.append("user", this.article.creator);
 
             axios({
                 url: "http://localhost:3000/upload-image",
@@ -101,8 +159,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
+.message-div {
+    
+}
 
+.article-form {
+    .row {
+        padding-bottom: 20px;
+    }
+    .article-editor-div {
+        margin-left: 50px;
+        width: 800px;
+    }
+}
 
 </style>

@@ -47,16 +47,18 @@
             <div class="col articles-right">
                 <div class="articles-tags">
                     <span class="badge badge-success">
-                        {{ getSchools[article.school] ? getSchools[article.school].name : '' }}
+                        {{ getSchool(article.school).name }}
                     </span>
                     <span class="badge badge-info"
                           v-for="(tag, index) in article.tags"
                           :key="index">
-                        {{ getTags[tag] ? getSchools[tag].name : '' }}
+                        {{ getTag(tag).name }}
                     </span>
                 </div>
-                <i class="fa fa-user fa-1x"></i> 
-                <a>{{ getUsers[article.creator].username }}</a>
+                <span>
+                    <i class="fa fa-user fa-1x"></i> 
+                    {{ getUser(article.creator).username }}
+                </span>
                 <div>
                     <span class="fa fa-thumbs-up fa-1x"></span> 
                     {{ article.push }}
@@ -90,9 +92,6 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 
 import Pagination from '../components/Pagination.vue'
-// 先把store.users以id排序(因users不能刪除，所以id順序能剛好對應)
-// users[id] 就會剛好是對應的user
-
 
 export default {
     components: {
@@ -101,8 +100,6 @@ export default {
     data: function() {
         return {
             dayjs: dayjs,
-            articles: [],
-            users: [],
             search: {
                 text: '',
                 field: ''
@@ -115,40 +112,48 @@ export default {
         }
     },
     created: function() {
+        // 設置分頁
         this.$store.commit('articles/setPage', this.pagination);
+
+        // 從query上拿取搜尋字串
         this.search.text = this.$route.query.searchText || '';
+
+        // 之後就把query清空
+        if(this.search.text)
+            this.$router.replace(this.$route.path)
     },
     computed: {
-        getArticles() {
+        getArticles: function() {
             return this.$store.getters['articles/getData'];
         },
-        getUsers() {
-            return this.$store.getters['users/getData'];
+        getArticlesFilter: function() {
+            let users = this.$store.getters['users/getData'];
+            return this.$store.getters['articles/getArticlesFilter'](users)
         },
-        getTags() {
-            return this.$store.getters['tags/getData'];
+        getUser: (app) => (id) => {
+            return app.$store.getters['users/getDataById'](id)
         },
-        getSchools() {
-            return this.$store.getters['schools/getData'];
+        getSchool: (app) => (id) => {
+            return app.$store.getters['schools/getDataById'](id)
         },
-        getArticlesFilter() {
-            return this.$store.getters['articles/getArticlesFilter'](this.getUsers)
+        getTag: (app) => (id) => {
+            return app.$store.getters['tags/getDataById'](id)
         },
     },
     methods: {
-        goArticle(id) {
+        goArticle: function(id) {
             this.$router.push({ 
                 name: 'article', 
                 params: { id: id }
             });
         },
-        sortArticles(field) {
+        sortArticles: function(field) {
             let sort = this.$store.state.articles.sort;
             sort.orderByField = field;
             sort.isAsc = !sort.isAsc;
             this.$store.commit('articles/setSort', sort);
         },
-        limitContent(content) {
+        limitContent: function(content) {
             let length = content.length;
             let limit = this.contentSize;
             content = content.replace(/<[^>]*>/g, '')
@@ -156,7 +161,7 @@ export default {
                 return content;
             return content.substring(0, limit);
         },
-        changePage(currentPage) {
+        changePage: function(currentPage) {
             this.pagination.currentPage = currentPage;
         }
     },

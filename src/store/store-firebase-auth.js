@@ -6,8 +6,6 @@ export default {
     namespaced: true,
     state: {
         data: null,
-        status: null,
-        error: null,
         isReady: false,
         isSignIn: null,
     },
@@ -15,30 +13,22 @@ export default {
         getData(state) {
             return state.data || [];
         },
-        getStatus(state) {
-            return state.status;
-        },
-        getError(state) {
-            return state.error;
-        },
         getCurrentUser(state) {
             return firebase.auth().currentUser;
+        },
+        getIsReady(state) {
+            return state.isReady;
+        },
+        getIsSignIn(state) {
+            return state.isSignIn;
         }
     },
     mutations: {
         setData(state, payload) {
-            console.log('user: setData', payload);
             state.data = payload;
         },
         clearData(state, payload) {
-            console.log('user: clearData');
             state.data = null;
-        },
-        setStatus(state, payload) {
-            state.status = payload;
-        },
-        setError(state, payload) {
-            state.error = payload
         },
         setReady(state, payload) {
             state.isReady = payload;
@@ -62,7 +52,7 @@ export default {
                     } else {
                         commit('clearData');
                         commit('setIsSignIn', false);
-                        reject('not sign in.');
+                        reject(user);
                     }
                 });
             });
@@ -93,6 +83,7 @@ export default {
                 firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((result) => {
                     commit('setData', result.user);
+                    commit('setIsSignIn', true);
                     resolve(result);
                 })
                 .catch((error) => {
@@ -104,6 +95,7 @@ export default {
             console.log('signOutAction');
             return new Promise((resolve, reject) => {
                 firebase.auth().signOut().then(function() {
+                    commit('setIsSignIn', false);
                     resolve('sign out')
                 }).catch(function(error) {
                     reject(error.message);

@@ -1,4 +1,4 @@
-import { db } from '../firebase.js'
+import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
@@ -26,17 +26,16 @@ export default {
             return state.data;
         },
         getDataById: (state) => (id) => {
-            return state.data[id];
+            let data = state.data || [];
+            return data.find(item => item.id == id)
+        },
+        getPostsByUserId: (state) => (id) => {
+            let data = state.data || [];
+            return data.filter(item => item.creator == id)
         },
         getPostsByArticleId: (state) => (id) => {
             let data = state.data || [];
-            let searchText = id;
-            let searchField = 'article';
-            
-            return data.filter((p) => {
-                if(p[searchField] == searchText)
-                    return p;
-            })
+            return data.filter(item => item.article == id)
         },
         getSortData: (state) => {
             let data = state.data || [];
@@ -122,7 +121,6 @@ export default {
     },
     mutations: {
         setData(state, payload) {
-            console.log('setData', payload);
             state.data = payload;
         },
         setStatus(state, payload) {
@@ -135,11 +133,9 @@ export default {
             state.sort = payload;
         },
         setSearch(state, payload) {
-            console.log('setSearch', payload);
             state.search = payload;
         },
         setPage(state, payload) {
-            console.log('setPage', payload);
             state.pagination = payload;
         }
     },
@@ -175,7 +171,7 @@ export default {
                     snapshot.forEach((doc) => {
                         post.id = Number(doc.data().id) + 1;
                         post.article = Number(post.article);
-                        post.created = new Date(Date.now());
+                        post.created = firebase.firestore.Timestamp.fromDate(new Date());
                         post.editDate = post.created;
 
                         db.collection('posts').add(post);
@@ -218,8 +214,7 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let post = payload;
-            post.editDate = new Date(Date.now());
-
+            post.editDate = firebase.firestore.Timestamp.fromDate(new Date())
 
             return new Promise((resolve, reject) => {
                 db.collection('posts')

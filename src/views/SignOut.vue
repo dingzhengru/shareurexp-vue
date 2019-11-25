@@ -8,7 +8,7 @@ export default {
     beforeCreate: function() {
         this.$store.dispatch('auth/signOutAction')
         .then(() => {
-            console.log('sign out');
+            this.$store.commit('users/setCurrentUser', null);
             this.$router.push('/');
         })
         .catch((error) => {
