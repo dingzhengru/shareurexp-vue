@@ -1,44 +1,44 @@
 <template>
-<div>
-    <div class="article-search">
-        <div class="row article-search-row">
-            <div class="col-12 col-sm-8 col-md-8">
-                <div class="input-group flex-nowrap">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="addon-wrapping">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </div>
-                    <input type="text" 
-                           class="form-control" 
-                           v-model="search.text"
-                           placeholder="搜尋文章" 
-                           aria-describedby="addon-wrapping"
-                    />
-                    <i class="searchclear fas fa-times-circle"
-                       @click="search.text=''"
-                       v-if="search.text"></i>
-                    <div class="input-group-append">
-                        <select class="form-control select-custom"
-                                v-model="search.field">
-                            <option value="">全部</option>
-                            <option value="title">標題</option>
-                            <option value="tags">標籤</option>
-                            <option value="creator">作者</option>
-                            <option value="content">文章內容</option>
-                        </select>
-                    </div>
+<div v-on:scroll.passive="handleScroll">
+    <div class="row articles-filter">
+        <div class="articles-search col-12 col-sm-8 col-md-8">
+            <div class="input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="addon-wrapping">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </div>
+                <input type="text" 
+                       class="form-control" 
+                       v-model="search.text"
+                       placeholder="搜尋文章" 
+                       aria-describedby="addon-wrapping"
+                />
+                <i class="searchclear fas fa-times-circle"
+                   @click="search.text=''"
+                   v-if="search.text"></i>
+                <div class="input-group-append">
+                    <select class="form-control select-custom"
+                            v-model="search.field">
+                        <option value="">全部</option>
+                        <option value="title">標題</option>
+                        <option value="tags">標籤</option>
+                        <option value="creator">作者</option>
+                        <option value="content">文章內容</option>
+                    </select>
                 </div>
             </div>
-            <div class="col">
-                <!-- <v-select label="name"
-                          :reduce="name => name.id"
-                          :options="getTags"
-                          v-model="article.tags"
-                          multiple 
-                          placeholder="選擇科系(複選)"
-                          required/> -->
-            </div>
+        </div>
+        <div class="articles-sort col-2 col-sm-3">
+            <select class="form-control" 
+                    v-model="sort">
+                <option :value="{ field:'created', isAsc:false }" selected>最新文章</option>
+                <option :value="{ field:'latestPostDate', isAsc:false }">最新回覆</option>
+                <option :value="{ field:'posts', isAsc:false }">最多回覆</option>
+                <option :value="{ field:'created', isAsc:true }">最舊文章</option>
+                <option :value="{ field:'ipViews', isAsc:false }">最多瀏覽</option>
+                <option :value="{ field:'ipViews', isAsc:true }">最少瀏覽</option>
+            </select>
         </div>
     </div>
     <div class="articles">
@@ -76,6 +76,8 @@
                     {{ article.pushs.length }}
                     <i class="fa fa-comment fa-1x"></i> 
                     {{ article.posts.length }}
+                    <i class="fas fa-eye fa-1x"></i>
+                    {{ article.ipViews.length}}
                 </div>
                 <div>
                     <i class="fa fa-clock fa-1x"></i> 
@@ -121,16 +123,8 @@ export default {
     data: function() {
         return {
             dayjs: dayjs,
-            orderFields: [
-                { name: '最新文章', val: 'created' },
-                { name: '最新回覆', val: 'created' },
-                { name: '最多回覆', val: 'created' },
-                { name: '最舊文章', val: 'created' },
-                { name: '最多瀏覽', val: 'created' },
-                { name: '最少瀏覽', val: 'created' },
-            ],
             sort: {
-                orderByField: 'created',
+                field: 'created',
                 isAsc: false
             },
             search: {
@@ -154,6 +148,11 @@ export default {
         // 之後就把query清空
         if(this.search.text)
             this.$router.replace(this.$route.path)
+
+        window.addEventListener('scroll', this.handleScroll, { passive: true });
+    },
+    beforeDestroy: function() {
+        window.removeEventListener('scroll', this.handleScroll);
     },
     computed: {
         getArticles: function() {
@@ -196,7 +195,17 @@ export default {
         },
         changePage: function(currentPage) {
             this.pagination.currentPage = currentPage;
-        }
+        },
+        handleScroll: function(event) {
+            let scrollY = window.scrollY || 
+                          window.pageYOffset ||
+                          document.documentElement.scrollTop ||
+                          window.scrollTop || 
+                          window.offsetTop 
+            
+            if((document.body.scrollHeight - window.innerHeight) - scrollY <= 50)
+                console.log('距離底部小於50px', (document.body.scrollHeight - window.innerHeight) - window.scrollY)
+        }   
     },
     watch: {
         'search.text': function(value) {
@@ -211,6 +220,14 @@ export default {
         'pagination.pageSize': function(value, oldValue) {
             this.$store.commit('articles/setPage', this.pagination);
         },
+        'sort.field': function(value, oldValue) {
+            console.log(this.sort)
+            this.$store.commit('articles/setSort', this.sort);
+        },
+        'sort.isAsc': function(value, oldValue) {
+            console.log(this.sort)
+            this.$store.commit('articles/setSort', this.sort);
+        },
     }
 }
 </script>
@@ -218,27 +235,35 @@ export default {
 <style lang="scss" scoped>
 
 
-.article-search {
+.articles-filter {
     padding-top: 15px;
     padding-bottom: 15px;
 
-    select.select-custom {
-        border-radius: 0px .25rem .25rem 0px;
+    .articles-search {
+        select.select-custom {
+            border-radius: 0px .25rem .25rem 0px;
+        }
+        select.select-custom:focus {
+            border-color: none;
+            box-shadow: none;
+        }
+        .searchclear {
+            position: absolute;
+            right: 120px;
+            top: 0;
+            bottom: 0;
+            height: 14px;
+            margin: auto;
+            font-size: 14px;
+            cursor: pointer;
+            color: #ccc;
+        }
     }
-    select.select-custom:focus {
-        border-color: none;
-        box-shadow: none;
-    }
-    .searchclear {
-        position: absolute;
-        right: 120px;
-        top: 0;
-        bottom: 0;
-        height: 14px;
-        margin: auto;
-        font-size: 14px;
-        cursor: pointer;
-        color: #ccc;
+    
+    .articles-sort {
+        select {
+            font-size: 0.8rem;
+        }
     }
 }
 

@@ -153,7 +153,13 @@ export default {
         }
     },
     created: function() {
-        this.addIp()
+        // add ipViews
+        let ipViewsTimer = setInterval(() => {
+            if(this.getArticle) {
+                this.addIpViews()
+                clearInterval(ipViewsTimer)
+            }
+        }, 500)
     },
     computed: {
         getArticle: function() {
@@ -236,16 +242,23 @@ export default {
                 console.log('push ok')
             })
         },
-        addIp: function() {
+        addIpViews: function() {
             axios({
                 url: 'https://api.my-ip.io/ip.json',
                 method: 'GET',
                 'mimeType': 'application/json',
                 'Content-Type': 'application/json',
-                'processData': false,
             }).then(result => {
-                console.log(result.data.ip)
-                
+                let ip = result.data.ip
+                if(this.getArticle.ipViews.indexOf(ip) == -1) {
+                    this.getArticle.ipViews.push(ip)
+                    this.$store.dispatch('articles/updateDataAction', this.getArticle)
+                    .then(data => {
+                        console.log('succcess', data)
+                    })
+                } else {
+                    console.log('already in ipViews')
+                }
             })
         }
     }

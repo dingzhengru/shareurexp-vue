@@ -17,6 +17,8 @@
 *  <a href="#遇到的問題">遇到的問題</a>
     *  <a href="#跨站源資源共用CORS">跨站源資源共用(CORS)</a>
     *  <a href="#ERR_BLOCKED_BY_CLIENT">ERR_BLOCKED_BY_CLIENT</a>
+    *  <a href="#如何在vue監聽scroll">如何在vue監聽scroll</a>
+    *  <a href="#取得scroll位置與是否快到底部的判斷">取得scroll位置與是否快到底部的判斷</a>
 ## Project setup
 ```npm install```  
 
@@ -253,3 +255,43 @@ app.use(cors({
 *  尋找沒被擋掉的web api(ex: my-ip.io/api)
 *  找不到就只能自己架server寫api了
 
+
+### 如何在vue監聽scroll
+
+```
+export default {
+    created: function() {
+        window.addEventListener('scroll', this.handleScroll, , { passive: true });
+    },
+    beforeDestroy: function() {
+        window.removeEventListener('scroll', this.handleScroll, , { passive: true });
+    },
+    methods: {
+        handleScroll: function(event) {}
+    }
+}
+```
+
+### 取得scroll位置與是否快到底部的判斷
+*  window.scrollY 是取得 scroll 與頂部的距離(最頂部時是 0)
+*  window.innerHeight 是取得viewport的高度 (outerHeight 是瀏覽器的高度)
+*  document.body.scrollHeight 是取得body的scroll總長度 (通常跟 document.documentElement.scrollHeight 一樣)
+*  window.scrollY + window.innerHeight = document.body.scrollHeight
+*  取得 window.scrollY 最大值: document.body.scrollHeight - window.innerHeight
+*  當到底部時 window.scrollY 自然就會是等於上面那個值
+```
+// 避免太舊的瀏覽器沒支援 scrollY (IE之類的)
+let scrollY = window.scrollY || 
+              window.pageYOffset ||
+              document.documentElement.scrollTop ||
+              window.scrollTop || 
+              window.offsetTop
+// 到最底部時
+if(window.scrollY == (document.body.scrollHeight - window.innerHeight))
+
+// 距離底部 <= 100px
+if((document.body.scrollHeight - window.innerHeight) - window.scrollY <= 100)
+
+```
+<img src="https://i.imgur.com/NBUFrfv.png">  
+來源: https://developer.mozilla.org/zh-CN/docs/Web/API/Window/innerHeight

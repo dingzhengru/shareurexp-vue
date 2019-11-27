@@ -9,7 +9,7 @@ export default {
         status: null,
         error: null,
         sort: {
-            orderByField: 'created',
+            field: 'created',
             isAsc: false
         },
         search: {
@@ -67,8 +67,18 @@ export default {
             })
         },
         getSortArticles: (state, getters) => (data) => {
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
+
+            // 這邊是比array的數量
+            if(field == 'posts' || 
+               field == 'ipViews')
+                return data.sort(function (a, b) {
+                    if(isAsc)
+                        return a[field].length > b[field].length ? 1 : -1;
+                    else
+                        return a[field].length < b[field].length ? 1 : -1;
+                });
 
             return data.sort(function (a, b) {
                 if(isAsc)
@@ -92,7 +102,7 @@ export default {
             let searchField = state.search.field;
 
             // sort
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
             // search => sort => page
@@ -108,7 +118,7 @@ export default {
         },
         getSortData: (state) => {
             let data = state.data || [];
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
             return data.sort(function (a, b) {
@@ -161,7 +171,7 @@ export default {
             let searchField = state.search.field;
 
             // sort
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
             // sort => search => page
@@ -285,14 +295,21 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let article = payload;
-
-            article.editDate = firebase.firestore.Timestamp.fromDate(new Date())
             
             return new Promise((resolve, reject) => {
                 db.collection('articles')
                 .where('id', '==', article.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
+                        // title, content, school, tags 改變時才改變編輯時間
+                        // array, object比較 用_.isEqual()
+                        let data = doc.data()
+                        if(article.title != data.title || 
+                           article.content != data.content || 
+                           article.school != data.school ||
+                           !_.isEqual(article.tags, data.tags))
+                            article.editDate = firebase.firestore.Timestamp.fromDate(new Date())
+                        
                         doc.ref.update(article)
                         resolve(article);
                     })

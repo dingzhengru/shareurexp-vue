@@ -100,8 +100,10 @@ export default {
             .then((data) => {
                 console.log('add post success');
 
-                this.addArticlePosts(data.id);
-
+                // add id to article.posts
+                // add created to article.latestPostDate
+                this.addArticlePosts(data);
+                
                 this.$router.push({
                     name: 'article',
                     id: this.$route.params.id
@@ -111,10 +113,10 @@ export default {
                 console.log(error);
             })
         },
-        addArticlePosts: function(postId) {
-            let article = this.getArticle
-            article.posts.push(postId)
-            this.$store.dispatch('articles/updateDataAction', article);
+        addArticlePosts: function(post) {
+            this.getArticle.posts.push(post.id)
+            this.getArticle.latestPostDate = post.created
+            this.$store.dispatch('articles/updateDataAction', this.getArticle);
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 

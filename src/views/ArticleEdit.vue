@@ -128,7 +128,6 @@ export default {
         editArticle: function(article) {
             this.$store.dispatch('articles/updateDataAction', article)
             .then((data) => {
-
                 this.$router.push({
                     name: 'article',
                     params: { id: data.id }

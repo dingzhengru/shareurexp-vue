@@ -8,7 +8,7 @@ export default {
         data: null,
         currentUser: null,
         sort: {
-            orderByField: 'id',
+            field: 'id',
             isAsc: true
         },
         search: {
@@ -37,7 +37,7 @@ export default {
         },
         getSortData: function(state) {
             let data = state.data || [];
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
             return data.sort(function (a, b) {
@@ -90,7 +90,7 @@ export default {
             let searchField = state.search.field;
 
             // sort
-            let field = state.sort.orderByField;
+            let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
             // sort => search => page
