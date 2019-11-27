@@ -44,6 +44,7 @@
 import axios from 'axios';
 import { VueEditor } from 'vue2-editor';
 import imgurClient from '../imgur-api.js'
+import editorToolbar from '../editor-toolbar.js';
 
 export default {
     components: { 
@@ -61,25 +62,7 @@ export default {
                 pushs: []
             },
             errors: [],
-            editorToolbar:[
-                ["bold", "italic", "underline", "strike"],
-
-                [
-                    { align: "" },
-                    { align: "center" },
-                    { align: "right" },
-                ],
-
-                [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
-
-                [{ indent: "-1" }, { indent: "+1" }],
-
-                [{ color: [] }, { background: [] }],
-
-                ["link", "image", "video", "formula"],
-
-                ["clean"]
-            ]
+            editorToolbar:editorToolbar
         }
     },
     created: function() {

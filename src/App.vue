@@ -19,9 +19,6 @@
                 <router-link class="nav-link" to="/articles">Articles</router-link>
             </li>
             <li class="nav-item">
-                <router-link class="nav-link" to="/articles/add">ArticleAdd</router-link>
-            </li>
-            <li class="nav-item">
                 <router-link class="nav-link" to="/tags">Tags</router-link>
             </li>
             <li class="nav-item">
@@ -29,10 +26,15 @@
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item back-link">
+            <!-- <li class="nav-item back-link">
                 <a href="#" @click="$router.go(-1)">
                     <i class="fas fa-arrow-circle-left fa-2x"></i>
                 </a>
+            </li> -->
+            <li class="nav-item">
+                <router-link class="nav-link" to="/articles/add">
+                <i class="fas fa-edit fa-2x"></i>
+                </router-link>
             </li>
             <li class="nav-item post-add-link"
                 v-if="this.$route.name == 'article'">
@@ -137,6 +139,7 @@ export default {
 <style lang="scss">
 html, body, #app{
     height: 100%;
+    font-family: system,BlinkMacSystemFont,system latin,system emoji,system tc,sans-serif;
 }
 
 #app {

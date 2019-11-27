@@ -12,7 +12,14 @@ import 'bootstrap'
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
 import '@fortawesome/fontawesome-free/css/solid.min.css'
 
+import 'dayjs/locale/zh-tw.js'
+
 import 'vue-select/dist/vue-select.css'
+
+import VueTippy, { TippyComponent } from "vue-tippy";
+
+Vue.use(VueTippy);
+Vue.component("tippy", TippyComponent);
 
 import firebaseInit from './firebase-init.js'
 

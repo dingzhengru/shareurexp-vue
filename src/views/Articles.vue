@@ -2,7 +2,7 @@
 <div>
     <div class="article-search">
         <div class="row article-search-row">
-            <div class="col-sm-12 col-md-8">
+            <div class="col-12 col-sm-8 col-md-8">
                 <div class="input-group flex-nowrap">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="addon-wrapping">
@@ -16,7 +16,8 @@
                            aria-describedby="addon-wrapping"
                     />
                     <i class="searchclear fas fa-times-circle"
-                       @click="search.text=''"></i>
+                       @click="search.text=''"
+                       v-if="search.text"></i>
                     <div class="input-group-append">
                         <select class="form-control select-custom"
                                 v-model="search.field">
@@ -29,13 +30,22 @@
                     </div>
                 </div>
             </div>
+            <div class="col">
+                <!-- <v-select label="name"
+                          :reduce="name => name.id"
+                          :options="getTags"
+                          v-model="article.tags"
+                          multiple 
+                          placeholder="選擇科系(複選)"
+                          required/> -->
+            </div>
         </div>
     </div>
     <div class="articles">
         <div class="row articles-row"
              v-for="(article, index) in getArticlesFilter"
              :key="index"> 
-            <div class="col-sm-6 col-md-8 articles-left">
+            <div class="col-6 col-sm-4 col-md-6 articles-left">
                 <div class="articles-title"
                      @click="goArticle(article.id)">
                     {{ article.title }}
@@ -44,7 +54,7 @@
                      v-html="limitContent(article.content)">
                 </div>
             </div>
-            <div class="col articles-right">
+            <div class="col-3 col-sm col-md articles-center">
                 <div class="articles-tags">
                     <span class="badge badge-success">
                         {{ getSchool(article.school).name }}
@@ -55,17 +65,21 @@
                         {{ getTag(tag).name }}
                     </span>
                 </div>
-                <span>
+            </div>
+            <div class="col-3 col-sm col-md articles-right">
+                <div>
                     <i class="fa fa-user fa-1x"></i> 
                     {{ getUser(article.creator).username }}
-                </span>
+                </div>
                 <div>
-                    <span class="fa fa-thumbs-up fa-1x"></span> 
-                    {{ article.push }}
-                    <span class="fa fa-comment fa-1x"></span> 
+                    <i class="fa fa-thumbs-up fa-1x"></i> 
+                    {{ article.pushs.length }}
+                    <i class="fa fa-comment fa-1x"></i> 
                     {{ article.posts.length }}
-                    <span class="fa fa-clock-o fa-1x"></span> 
-                    {{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm:ss') }}
+                </div>
+                <div>
+                    <i class="fa fa-clock fa-1x"></i> 
+                    {{ dayjs(article.created.toMillis()).from(dayjs()) }}
                 </div>
             </div>
         </div>
@@ -92,6 +106,13 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 
 import Pagination from '../components/Pagination.vue'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import zhTW from  'dayjs/locale/zh-tw';
+
+dayjs.locale(zhTW)
+dayjs.locale('zh-tw')
+dayjs.extend(relativeTime)
+
 
 export default {
     components: {
@@ -100,6 +121,18 @@ export default {
     data: function() {
         return {
             dayjs: dayjs,
+            orderFields: [
+                { name: '最新文章', val: 'created' },
+                { name: '最新回覆', val: 'created' },
+                { name: '最多回覆', val: 'created' },
+                { name: '最舊文章', val: 'created' },
+                { name: '最多瀏覽', val: 'created' },
+                { name: '最少瀏覽', val: 'created' },
+            ],
+            sort: {
+                orderByField: 'created',
+                isAsc: false
+            },
             search: {
                 text: '',
                 field: ''
@@ -223,22 +256,31 @@ export default {
         &:first-child {
             border-top: 0px; 
         }
-        .articles-title {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: black;
+        .articles-left {
+            .articles-title {
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: black;
+            }
+            .articles-title:hover {
+                color: #7F8C8D;
+                text-decoration: none;
+            }
+            .articles-content {
+                font-size: 18px;
+            }
         }
-        .articles-title:hover {
-            color: #7F8C8D;
-            text-decoration: none;
+        .articles-center {
+            .articles-tags {
+                span {
+                    font-size: 0.9rem;
+                    margin-right: 2px;
+                }
+            }
         }
-        .articles-content {
-            font-size: 18px;
-        }
-        .articles-tags {
-            span {
-                font-size: 0.9rem;
-                margin-right: 2px;
+        .articles-right {
+            div {
+                font-size: 0.5rem;
             }
         }
     }

@@ -9,7 +9,7 @@ export default {
         status: null,
         error: null,
         sort: {
-            orderByField: 'id',
+            orderByField: 'created',
             isAsc: false
         },
         search: {

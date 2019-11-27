@@ -48,12 +48,18 @@ function addIncrementId(items) {
 
 import { firebase, db } from './firebase.js'
 
+
+import users from './users.js'
+import articles from './articles.js'
+import posts from './posts.js'
 import schools from './schools.js'
 import tags from './tags.js'
 
 export default () => {
-    // initCollection(db, 'articles', articles);
-    // initCollection(db, 'posts', posts);
+    initCollection(db, 'users', users);
+    initCollection(db, 'articles', articles);
+    initCollection(db, 'posts', posts);
+    
 
     // initCollection(db, 'schools', addIncrementId(schools))
     // initCollection(db, 'tags', addIncrementId(tags))

@@ -6,11 +6,17 @@
 *  <a href="#fort-awesome">fort-awesome</a>
 *  <a href="#vue2-editor">vue2-editor</a>
 *  <a href="#vue-select">vue-select</a>
+*  <a href="#vue-tippy">vue-tippy</a>
+*  <a href="#v-responsive">v-responsive</a>
 *  <a href="#axios">axios</a>
 *  <a href="#imgur-api">imgur api</a>
 *  <a href="#lodash">lodash</a>
 *  <a href="#dayjs">dayjs</a>
 *  <a href="#正則表達式">正則表達式</a>
+*  <a href="#my-ip.ioapi">my-ip.io/api</a>
+*  <a href="#遇到的問題">遇到的問題</a>
+    *  <a href="#跨站源資源共用CORS">跨站源資源共用(CORS)</a>
+    *  <a href="#ERR_BLOCKED_BY_CLIENT">ERR_BLOCKED_BY_CLIENT</a>
 ## Project setup
 ```npm install```  
 
@@ -115,6 +121,9 @@ main.js
 
 import vSelect from 'vue-select'
 ```
+## vue-tippy
+
+## v-responsive
 
 ## axios
 *  Promise based HTTP client for the browser and node.js
@@ -184,9 +193,26 @@ import _ from 'lodash'
 ## dayjs
 *  極度輕量的處理時間library
 *  目前主要用於處理firebase回傳來的時間格式  
-
+*  設置時區: ```dayjs.locale('zh-tw')```
+*  引入的 Plugin: RelativeTime
 ```
 import dayjs from 'dayjs'
+
+// 設置時區(全域)
+import 'dayjs/locale/zh-tw.js'
+dayjs.locale('zh-tw')
+
+// 調用時才設(只限這行)
+dayjs().locale('zh-tw').format() 
+
+// import Plugin
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime)
+
+// 遇到'relativeTime' of undefined 的bug的話 下面是解法(作者: 1.18版修正)
+import tw from  'dayjs/locale/zh-tw';
+dayjs.locale(tw);   
+dayjs.locale('zh-tw');   
 
 // 放在data 這樣就可以在template直接使用
 data: function() {
@@ -195,3 +221,35 @@ data: function() {
     }
 }
 ```
+
+## 遇到的問題
+###  跨站源資源共用(CORS)
+*  你要跨的server 沒有允許你這個網域存取
+*  有時候是req header沒設定好 (imgur api ex: {content-type: false, 'mimeType': 'multipart/form-data'})
+*  自己的server的話，要設定好跨站存取你那個網域
+
+```
+// set res headers
+headers: {
+    Access-Control-Allow-Origin: '*',
+    Access-Control-Allow-Headers: 'origin, content-type, accept',
+    Access-Control-Allow-Methods: 'GET, POST, PUT, DELETE, OPTIONS',
+    Access-Control-Allow-Credentials: true
+}
+
+// or use express extend
+
+const cors = require('cors')
+app.use(cors()); // 允許全部跨站
+app.use(cors({
+  origin: 'http://yourapp.com' // 允許指定網域
+}))
+
+```
+
+
+###  ERR_BLOCKED_BY_CLIENT
+*  通常是遇到ad block阻擋了檔案、ajax存取(檔案名稱、網域名稱被阻擋，可能包含廣告敏感字)
+*  尋找沒被擋掉的web api(ex: my-ip.io/api)
+*  找不到就只能自己架server寫api了
+

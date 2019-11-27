@@ -44,9 +44,20 @@
             </div>
         </div>
         <div class="article-bottom">
-            <div class="row article-edit"
-                 v-if="getCurrentUser.id == getArticle.creator">
-                <div class="col-12 col-sm-3 col-md-2">
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <button class="btn-push btn btn-success btn-block btn-sm"
+                            @click="pushArticle(getArticle)"
+                            v-tippy="getPushTip(getArticle)"
+                            :class="{disabled: isPushed(getArticle) || isPushSelf(getArticle) }">
+                        <i class="fas fa-thumbs-up fa-2x"></i> 
+                        <span class="push-length">
+                            {{ getArticle.pushs.length }}
+                        </span>
+                    </button>    
+                </div>
+                <div class="col-12 col-sm-6 col-md-3 ml-auto"
+                     v-if="getCurrentUser.id == getArticle.creator">
                     <button class="btn-edit btn btn-warning btn-block btn-sm"
                             @click="goArticleEdit(getArticle.id)">
                         <i class="fas fa-edit fa-2x"></i>
@@ -87,9 +98,20 @@
                 </div>
             </div>
             <div class="post-bottom">
-                <div class="row post-edit"
-                     v-if="getCurrentUser.id == post.creator">
-                    <div class="col-12 col-sm-3 col-md-2">
+                <div class="row post-edit">
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <button class="btn-push btn btn-success btn-block btn-sm"
+                                @click="pushPost(post)"
+                                v-tippy="getPushTip(post)"
+                                :class="{disabled: isPushed(post) || isPushSelf(post)}">
+                            <i class="fas fa-thumbs-up fa-2x"></i>
+                            <span class="push-length">
+                                {{ post.pushs.length }}
+                            </span>
+                        </button>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3 ml-auto"
+                         v-if="getCurrentUser.id == post.creator">
                         <button class="btn-edit btn btn-warning btn-block btn-sm"
                                 @click="goPostEdit(post.id)">
                             <i class="fas fa-edit fa-2x"></i>
@@ -108,15 +130,30 @@
 import { db } from '../firebase.js'
 import _ from 'lodash'
 import dayjs from 'dayjs'
+import Vue from 'vue'
+import axios from 'axios'
+
+
 
 export default {
     data: function() {
         return {
             dayjs: dayjs,
+            pushSlefTip : {
+                content: '不能自推',
+                arrow : true, 
+                trigger: 'mouseenter focus click'
+            },
+            pushedTip: {
+                content: '已推過',
+                arrow : true, 
+                trigger: 'mouseenter focus click'
+            },
+            noPushedTip: { trigger: 'manual' }
         }
     },
     created: function() {
-
+        this.addIp()
     },
     computed: {
         getArticle: function() {
@@ -138,6 +175,23 @@ export default {
         },
         getCurrentUser: function() {
             return this.$store.getters['users/getCurrentUser'];
+        },
+        isPushed: (app) => (item) => {
+            // -1 代表沒有推過
+            let pushs = item.pushs || [];
+            if(!Array.isArray(pushs))
+                return true
+            return pushs.indexOf(app.getCurrentUser.id) > -1
+        },
+        isPushSelf: (app) => (item) => {
+            return item.creator == app.getCurrentUser.id
+        },
+        getPushTip: (app) => (item) => {
+            if(app.isPushSelf(item))
+                return app.pushSlefTip
+            else if(app.isPushed(item))
+                return app.pushedTip
+            return app.noPushedTip
         }
     },
     methods: {
@@ -164,13 +218,34 @@ export default {
                 }
             })
         },
-        updateUser: function() {
-            let uid = this.$store.getters['auth/getData'].uid || null;
-
-            return new Promise((resolve, reject) => {
-                this.$store
-                    .dispatch('users/getUserByUid', uid)
-                    .then(data => resolve(data))
+        pushArticle: function(article) {
+            if(this.isPushed(article) || this.isPushSelf(article))
+                return
+            article.pushs.push(this.getCurrentUser.id)
+            this.$store.dispatch('articles/updateDataAction', article)
+            .then((data) => {
+                console.log('push ok')
+            })
+        },
+        pushPost: function(post) {
+            if(this.isPushed(post) || this.isPushSelf(post))
+                return
+            post.pushs.push(this.getCurrentUser.id)
+            this.$store.dispatch('posts/updateDataAction', post)
+            .then(data => {
+                console.log('push ok')
+            })
+        },
+        addIp: function() {
+            axios({
+                url: 'https://api.my-ip.io/ip.json',
+                method: 'GET',
+                'mimeType': 'application/json',
+                'Content-Type': 'application/json',
+                'processData': false,
+            }).then(result => {
+                console.log(result.data.ip)
+                
             })
         }
     }
@@ -210,11 +285,14 @@ div.article {
         margin-top: 10px;
         margin-bottom: 10px;
 
-        .article-edit {
+        .btn-push {
             
-            .btn-edit {
+        }
+        .push-length {
+            font-size: 1.25rem;
+        }
+        .btn-edit {
 
-            }
         }
     }
     
@@ -233,13 +311,22 @@ div.post {
         margin-top: 10px;
         margin-bottom: 10px;
 
-        .post-edit {
-            .btn-edit {
+        .btn-push {
 
-            }
+        }
+        .push-length {
+            font-size: 1.25rem;
+        }
+        .btn-edit {
+
         }
     }
 }
+
+
+
+
+
 
 
 </style>
