@@ -73,6 +73,12 @@ export default {
                     // 刪除密碼，另外創一個users的(自己創的collection)
                     delete user.password;
                     user.uid = result.user.uid;
+                    user.pushs = [];
+                    user.images = [];
+                    user.settings = {
+                        pageSize: 5,
+                        showmode: 'page'
+                    }
                     this.$store
                         .dispatch('users/addDataAction', user)
                         .then(data => {

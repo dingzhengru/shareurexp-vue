@@ -3,7 +3,7 @@
     <div class="row articles-filter">
         <div class="articles-search col-12 col-sm-8 col-md-8">
             <div class="input-group flex-nowrap">
-                <div class="input-group-prepend">
+                <!-- <div class="input-group-prepend">
                     <span class="input-group-text" id="addon-wrapping">
                         <i class="fas fa-search"></i>
                     </span>
@@ -16,8 +16,9 @@
                 />
                 <i class="searchclear fas fa-times-circle"
                    @click="search.text=''"
-                   v-if="search.text"></i>
-                <div class="input-group-append">
+                   v-if="search.text"></i> 
+               -->
+                <!-- <div class="input-group-append">
                     <select class="form-control select-custom"
                             v-model="search.field">
                         <option value="">全部</option>
@@ -26,7 +27,7 @@
                         <option value="creator">作者</option>
                         <option value="content">文章內容</option>
                     </select>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="articles-sort col-2 col-sm-3">
@@ -39,6 +40,24 @@
                 <option :value="{ field:'ipViews', isAsc:false }">最多瀏覽</option>
                 <option :value="{ field:'ipViews', isAsc:true }">最少瀏覽</option>
             </select>
+        </div>
+        <div class="articles-config">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" 
+                        id="dropdownMenu1" 
+                        data-toggle="dropdown">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" 
+                     aria-labelledby="dropdownMenu1">
+                    <button class="dropdown-item"
+                            :class="{ active: showmode == 'page' }"
+                            @click="changeShowmode('page')">分頁顯示</button>
+                    <button class="dropdown-item"
+                            :class="{ active: showmode == 'scroll' }"
+                            @click="changeShowmode('scroll')">下拉顯示</button>
+                </div>
+            </div>
         </div>
     </div>
     <div class="articles">
@@ -89,11 +108,12 @@
 
     <!-- 分頁 -->
 
-    <div class="pagination">
+    <div class="pagination"
+         v-if="showmode == 'page'">
         <Pagination 
         :currentPage="pagination.currentPage"
         :pageSize="pagination.pageSize"
-        :data="getArticles"
+        :data="getSearchArticles"
         @change-page="changePage">
         </Pagination>
     </div>
@@ -133,8 +153,9 @@ export default {
             },
             pagination :{
                 currentPage: 1,
-                pageSize: 5
+                pageSize: 3
             },
+            showmode: 'page', // page, scroll
             contentSize: 50
         }
     },
@@ -157,6 +178,9 @@ export default {
     computed: {
         getArticles: function() {
             return this.$store.getters['articles/getData'];
+        },
+        getSearchArticles: function() {
+            return this.$store.getters['articles/getSearchData'];
         },
         getArticlesFilter: function() {
             let users = this.$store.getters['users/getData'];
@@ -193,26 +217,39 @@ export default {
                 return content;
             return content.substring(0, limit);
         },
-        changePage: function(currentPage) {
-            this.pagination.currentPage = currentPage;
+        changeShowmode: function(showmode) {
+            this.showmode = showmode
+            this.pagination = {
+                currentPage: 1,
+                pageSize: 3
+            }
         },
         handleScroll: function(event) {
+            if(this.showmode != 'scroll')
+                return
+
             let scrollY = window.scrollY || 
                           window.pageYOffset ||
                           document.documentElement.scrollTop ||
                           window.scrollTop || 
                           window.offsetTop 
-            
-            if((document.body.scrollHeight - window.innerHeight) - scrollY <= 50)
-                console.log('距離底部小於50px', (document.body.scrollHeight - window.innerHeight) - window.scrollY)
-        }   
+            let offsetBottom = 50;
+
+            if((document.body.scrollHeight - window.innerHeight) - scrollY <= offsetBottom) {
+                console.log('距離底部小於', offsetBottom)
+                this.pagination.pageSize = this.pagination.pageSize + 3;
+            }
+        },
+        changePage: function(currentPage) {
+            this.pagination.currentPage = currentPage;
+        },
     },
     watch: {
         'search.text': function(value) {
-            this.$store.commit('articles/setSearch', this.search);
+            this.$store.commit('articles/setSearchText', this.search.text);
         }, 
         'search.field': function(value) {
-            this.$store.commit('articles/setSearch', this.search);
+            this.$store.commit('articles/setSearchField', this.search.field);
         },
         'pagination.currentPage': function(value, oldValue) {
             this.$store.commit('articles/setPage', this.pagination);
@@ -247,22 +284,27 @@ export default {
             border-color: none;
             box-shadow: none;
         }
-        .searchclear {
-            position: absolute;
-            right: 120px;
-            top: 0;
-            bottom: 0;
-            height: 14px;
-            margin: auto;
-            font-size: 14px;
-            cursor: pointer;
-            color: #ccc;
-        }
     }
     
     .articles-sort {
         select {
-            font-size: 0.8rem;
+            width: 8rem;
+            min-width: 5rem;
+            max-width: 100%;
+        }
+    }
+    .articles-config {
+
+        // 取消下拉選單的小三角形
+        button.dropdown-toggle::after {
+            border: 0;
+        }
+        .dropdown-menu {
+            min-width: 5rem;
+
+            .dropdown-item {
+                
+            }
         }
     }
 }

@@ -12,7 +12,11 @@ export default [
         created: now,
         editDate: now,
         pushs: [],
-        images: []
+        images: [],
+        settings: {
+            pageSize: 5,
+            showmode: 'page'
+        }
     },
     {
         id: 1,
@@ -22,7 +26,11 @@ export default [
         created: now,
         editDate: now,
         pushs: [],
-        images: []
+        images: [],
+        settings: {
+            pageSize: 5,
+            showmode: 'page'
+        }
     },
     {
         id: 2,
@@ -32,7 +40,11 @@ export default [
         created: now,
         editDate: now,
         pushs: [],
-        images: []
+        images: [],
+        settings: {
+            pageSize: 5,
+            showmode: 'page'
+        }
     },
     {
         id: 3,
@@ -42,6 +54,10 @@ export default [
         created: now,
         editDate: now,
         pushs: [],
-        images: []
+        images: [],
+        settings: {
+            pageSize: 5,
+            showmode: 'page'
+        }
     },
 ]

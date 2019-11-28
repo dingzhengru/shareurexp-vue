@@ -1,6 +1,11 @@
 # shareurexp-vue(demo project)
 
 *  <a href="#project-setup">Project setup</a>
+*  <a href="#my-component">my-component</a>
+    *  <a href="#Pagination">Pagination</a>
+*  <a href="#scss&css">scss & css</a>
+    *  <a href="#searchclear">searchclear</a>
+*  <a href="css-animate">css animate</a>
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
 *  <a href="#fort-awesome">fort-awesome</a>
@@ -38,6 +43,75 @@
 **use in other .js, .vue**  
 ```
 import { firebase, db, actionCodeSettings } from '../firebase.js'
+```
+
+## my-component
+*  自己寫的component
+
+### Pagination
+*  data 如果有設置搜尋的話，需要放搜尋後結果
+*  @change-page: 會回傳currentPage，接回來並更新你的currentPage
+
+```
+<Pagination 
+    :currentPage="pagination.currentPage"
+    :pageSize="pagination.pageSize"
+    :data="getSearchArticles"
+    @change-page="changePage">
+</Pagination>
+```
+
+## scss & css
+*  這專案有用到的客製 css style
+
+### searchclear
+*  input 後面的清除按鈕( X圖案 )
+```
+.searchclear {
+    position: absolute;
+    right: 50px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+    z-index: 99;
+}
+```
+
+## css animate
+*  自己寫的簡單動畫
+*  只要用transition直接選 all 或只指定變動的屬性(transition: width 0.3s ease-in-out;)
+*  剩下就自己指定事件去做屬性變更即可(ex: focus 就把width變大, blur 就把他小回原大小)
+*  transition: property || duration || delay || timing-function  [, ...];
+*  transition: all 0.5s ease-in-out; / transition: width 0.5s ease-in-out;
+
+```
+<input type="text" 
+        :style="{ width: inputWidth }" 
+        @focus="widenInputWidth()"
+        @blur="narrowInputWidth()">
+
+input {
+    transition: width 0.3s ease-in-out;
+}
+```
+```
+data: function() {
+    return {
+        inputWidth: '100px'
+    }
+},
+methods: {
+    widenInputWidth: function() {
+        this.inputWidth = '300px';
+    },
+    narrowInputWidth: function() {
+        this.inputWidth = '100px';
+    }
+}
 ```
 
 **firebase.js**

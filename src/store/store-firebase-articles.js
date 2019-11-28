@@ -70,7 +70,7 @@ export default {
             let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
-            // 這邊是比array的數量
+            // 這邊以array的數量排序的
             if(field == 'posts' || 
                field == 'ipViews')
                 return data.sort(function (a, b) {
@@ -219,7 +219,15 @@ export default {
         setPage(state, payload) {
             console.log('setPage', payload);
             state.pagination = payload;
-        }
+        },
+        setSearchText(state, payload) {
+            console.log('setSearchText', payload);
+            state.search.text = payload;
+        },
+        setSearchField(state, payload) {
+            console.log('setSearchField', payload);
+            state.search.field = payload;
+        },
     },
     actions: {
         getDataAction({ state, commit }, payload) {

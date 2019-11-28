@@ -15,13 +15,16 @@ import PostAdd from '../views/PostAdd.vue'
 import Tags from '../views/Tags.vue'
 import PostEdit from '../views/PostEdit.vue'
 
+import PageNotFound from '../views/PageNotFound.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    redirect: { name:'articles' }
   },
   {
     path: '/user',
@@ -85,6 +88,12 @@ const routes = [
     name: 'tags',
     component: Tags
   },
+  {
+    path: '*',
+    name: 'page-not-found',
+    component: PageNotFound,
+    redirect: { name: 'articles' }
+  }
 ]
 
 const router = new VueRouter({
