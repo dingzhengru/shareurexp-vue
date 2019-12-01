@@ -3,11 +3,14 @@
 *  <a href="#project-setup">Project setup</a>
 *  <a href="#my-component">my-component</a>
     *  <a href="#Pagination">Pagination</a>
-*  <a href="#scss&css">scss & css</a>
+    *  <a href="#SignInModal">SignInModal</a>
+*  <a href="#scss-css">scss & css</a>
     *  <a href="#searchclear">searchclear</a>
+    *  <a href="#avatar">avatar</a>
 *  <a href="css-animate">css animate</a>
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
+    *  <a href="#bootstrap的置中">bootstrap的置中</a>
 *  <a href="#fort-awesome">fort-awesome</a>
 *  <a href="#vue2-editor">vue2-editor</a>
 *  <a href="#vue-select">vue-select</a>
@@ -61,6 +64,54 @@ import { firebase, db, actionCodeSettings } from '../firebase.js'
 </Pagination>
 ```
 
+### SignInModal
+*  此modal是用bootstrap寫成的，需引入bootstrap
+*  id: 打開modal中的 data-target="#id"
+*  signInHandle: 需要給一個回傳 Promise 的函式
+*  回傳Promise是為了在登入時檢查是否登入成功，避免失敗還把modal關掉
+
+```
+<SignInModal
+    id="SignInModal"
+    :signInHandle="signIn">    
+</SignInModal>
+
+<button 
+    data-toggle="modal"
+    data-target="#SignInModal">
+    Open Modal
+</button>
+```
+### SignUpModal
+*  此modal是用bootstrap寫成的，需引入bootstrap
+*  id: 打開modal中的 data-target="#id"
+*  signUpHandle: 需要給一個回傳 Promise 的函式
+*  回傳Promise是為了在登入時檢查是否登入成功，避免失敗還把modal關掉
+*  比登入多寫一個關閉 modal 剩餘秒數的 counter ，為了呈現"幾秒後關閉"
+
+```
+<SignUpModal
+    id="SignUpModal"
+    :signUpHandle="signUp">    
+</SignUpModal>
+
+<button 
+    data-toggle="modal"
+    data-target="#SignUpModal">
+    Open Modal
+</button>
+```
+```
+// conter 顯示幾秒後關閉的
+let count = 0;
+let countdownTimer = setInterval(() => {
+    count = count + 1000
+    this.closeLeftTime = Math.floor((this.closeTimeMS - count) / 1000);
+    this.message = `${ this.closeLeftTime } 後關閉此視窗`
+    if(this.closeLeftTime <= 0)
+        clearInterval(countdownTimer);
+}, 1000)
+```
 ## scss & css
 *  這專案有用到的客製 css style
 
@@ -79,6 +130,39 @@ import { firebase, db, actionCodeSettings } from '../firebase.js'
     color: #ccc;
     z-index: 99;
 }
+```
+
+### avatar
+*  用 css 做的簡單文字圖像(要把一個文字放進裡面)
+
+```
+
+// default
+.avatar {
+    display: inline-block;
+    box-sizing: content-box;
+    color: #fff;
+    text-align: center;
+    vertical-align: top;
+    background-color: #e5ecf5;
+    font-weight: 400;
+    width: 48px;
+    height: 48px;
+    border-radius: 48px;
+    font-size: 24px;
+    line-height: 48px;
+}
+
+// small (.avatar .small)
+.small-avatar {
+    margin: -2px 5px -2px -6px !important;
+    width: 24px  !important;
+    height: 24px  !important;
+    border-radius: 24px  !important;
+    font-size: 12px  !important;
+    line-height: 24px  !important;
+}
+
 ```
 
 ## css animate
@@ -144,6 +228,18 @@ export { firebase, db, actionCodeSettings };
 ## bootstrap
 *  import css & js in main.js
 *  用於置左, 置右 ml-auto, mr-auto(margin-left: auto; , margin-right: auto; )
+
+### bootstrap的置中
+*  .text-center
+*  { margin: auto }
+*  .mx-auto (flex)
+```
+<div class="d-flex">
+    <div class="mx-auto">
+        ...
+    </div>
+</div>
+```
 
 **main.js**  
 ```

@@ -18,7 +18,7 @@ export default {
         },
         pagination: {
             currentPage: null,
-            pageSize: null
+            pagesize: null
         }
     },
     getters: {
@@ -93,9 +93,9 @@ export default {
 
             // page
             let currentPage = state.pagination.currentPage;
-            let pageSize = state.pagination.pageSize;
-            let startAt = pageSize * (currentPage - 1);
-            let endAt = startAt + pageSize;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
 
             // search
             let searchText = state.search.text;
@@ -149,9 +149,9 @@ export default {
         },
         getPageData: (state) => {
             let currentPage = state.pagination.currentPage;
-            let pageSize = state.pagination.pageSize;
-            let startAt = pageSize * (currentPage - 1);
-            let endAt = startAt + pageSize;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
 
             let data = state.data || [];
 
@@ -162,9 +162,9 @@ export default {
 
             // page
             let currentPage = state.pagination.currentPage;
-            let pageSize = state.pagination.pageSize;
-            let startAt = pageSize * (currentPage - 1);
-            let endAt = startAt + pageSize;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
 
             // search
             let searchText = state.search.text;
@@ -262,6 +262,7 @@ export default {
                         article.id = Number(doc.data().id) + 1;
                         article.created = new Date(Date.now());
                         article.editDate = article.created;
+                        article.latestPostDate = article.created;
 
                         db.collection('articles').add(article);
 

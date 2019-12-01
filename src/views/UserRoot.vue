@@ -1,0 +1,132 @@
+<template>
+    <div>
+        <div class="row user-profile mb-5">
+            <div class="col-2 text-center">
+                <span class="avatar" style="background-color: red;">
+                    {{ getCurrentUser.username.substring(0 ,1) }}
+                </span>
+            </div>
+            <div class="col-10">
+                <div class="username mb-4">{{ getCurrentUser.username }}</div>
+                <div>
+                    <span class="user-id mr-3">
+                        ID：{{ getCurrentUser.id }}
+                    </span>
+                    <span class="user-id mr-3">
+                        <i class="fas fa-envelope"></i>
+                        {{ getCurrentUser.email }}
+                    </span>
+                    <span class="user-created">
+                        <i class="fas fa-user-plus"></i>
+                        {{ dayjs(getCurrentUser.created.toMillis()).format('YYYY/MM/DD') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class= "row">
+            <div class="col-2">
+                <nav class="user-sidebar nav flex-column nav-pills">
+                    <router-link 
+                        class="nav-link"
+                        :to="{ name: 'user' }"
+                        @click="console.log(123)">
+                        <i class="fas fa-newspaper"></i> 
+                        文章
+                    </router-link>
+                    <router-link 
+                        class="nav-link"
+                        :to="{ name: 'user-posts' }"
+                        @click="console.log(123)">
+                        <i class="fas fa-comment-dots"></i> 
+                        回覆
+                    </router-link>
+                    <router-link 
+                        class="nav-link"
+                        :to="{ name: 'user-settings' }">
+                        <i class="fas fa-cog"></i> 
+                        設定
+                    </router-link>
+                </nav>
+            </div>
+            <div class="col-10">
+                <router-view/>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import dayjs from 'dayjs'
+
+export default {
+    data: function() {
+        return {
+            dayjs: dayjs,
+        }
+    },
+    created: function() {
+        
+    },
+    computed: {
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+
+$sidebar-text-color: #1d525f;
+
+.user-profile {
+    margin-top: -10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    // background-color: rgb(160, 229, 173);
+    background-color: #CFD7C8;
+    .username {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .user-id {
+
+    }
+    .user-created {
+
+    }
+    .avatar {
+        display: inline-block;
+        box-sizing: content-box;
+        color: #fff;
+        text-align: center;
+        vertical-align: top;
+        background-color: #e5ecf5;
+        font-weight: 400;
+        line-height: 96px;
+        font-size: 48px;
+        width: 96px;
+        height: 96px;
+        border-radius: 96px;
+    }
+}
+
+
+.user-sidebar {
+
+    .nav-link {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        color: $sidebar-text-color;
+    }
+    .nav-link:hover {
+        background-color: #007bff !important;
+        color: white;
+    }
+    a.router-link-exact-active {
+        background-color: #007bff;
+        color: white;
+    }
+}
+
+</style>

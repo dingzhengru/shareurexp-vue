@@ -17,7 +17,7 @@ export default {
         },
         pagination: {
             currentPage: null,
-            pageSize: null
+            pagesize: null
         }
     },
     getters: {
@@ -68,9 +68,9 @@ export default {
         },
         getPageData: function(state) {
             let currentPage = state.pagination.currentPage;
-            let pageSize = state.pagination.pageSize;
-            let startAt = pageSize * (currentPage - 1);
-            let endAt = startAt + pageSize;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
 
             let data = state.data || [];
 
@@ -81,9 +81,9 @@ export default {
 
             // page
             let currentPage = state.pagination.currentPage;
-            let pageSize = state.pagination.pageSize;
-            let startAt = pageSize * (currentPage - 1);
-            let endAt = startAt + pageSize;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
 
             // search
             let searchText = state.search.text;

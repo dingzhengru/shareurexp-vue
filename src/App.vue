@@ -10,7 +10,7 @@
              title="home">
     </router-link>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-align-justify fa-2x
+        <i class="fas fa-align-justify
                   navbar-collapse-icon"></i>
     </button>
     <div class="collapse navbar-collapse" id="navbarContent">
@@ -35,17 +35,14 @@
                         <option value="content">內容</option>
                     </select>
                 </div>
-                <!-- <input type="text" 
-                       class="form-control" 
-                       v-model="articlesSearch.text"
-                       placeholder="搜尋文章" > -->
                     <input type="text" 
                        class="form-control" 
                        v-model="articlesSearch.text"
                        placeholder="搜尋文章"
                        :style="{ width: inputWidth }" 
                        @focus="widenInputWidth()"
-                       @blur="narrowInputWidth()">
+                       @blur="narrowInputWidth()"
+                       required>
                 <i class="searchclear fas fa-times-circle"
                    @click="articlesSearch.text=''"
                    v-if="articlesSearch.text"></i>
@@ -57,54 +54,67 @@
             </div>
         </form>
         <ul class="navbar-nav ml-auto">
-            <!-- <li class="nav-item back-link">
-                <a href="#" @click="$router.go(-1)">
-                    <i class="fas fa-arrow-circle-left fa-2x"></i>
-                </a>
-            </li> -->
-            <li class="nav-item">
-                <router-link class="nav-link" to="/user">
-                    <i class="fas fa-user"></i>
-                </router-link>
-            </li>
             <li class="nav-item post-add-link"
                 v-if="this.$route.name == 'article'">
                 <router-link 
                     class="nav-link"
                     :to="{ name: 'post-add',
                            params: { id: this.$route.params.id }}">
-                    <i class="fas fa-comment-dots fa-2x"></i>
+                    <i class="fas fa-comment-dots"></i>
                 </router-link>
             </li>
             <li class="nav-item"
-                v-if="this.$route.name != 'article'">
+                v-if="this.$route.name != 'article' && getCurrentUser">
                 <router-link class="nav-link" to="/articles/add">
                     <i class="fas fa-edit"></i>
                 </router-link>
             </li>
             <li class="nav-item"
-                v-if="true">
-                <router-link class="nav-link" to="/sign-up">
-                    <i class="fas fa-user-plus"></i>
-                </router-link>
+                v-if="!getCurrentUser">
+                <a href="#"
+                   class="nav-link"
+                   data-toggle="modal"
+                   data-target="#SignUpModal">
+                   註冊
+                </a>
             </li>
             <li class="nav-item"
-                v-if="true">
-                <router-link class="nav-link" to="/sign-in">
-                    登入
-                </router-link>
+                v-if="!getCurrentUser">
+                <a href="#"
+                   class="nav-link"
+                   data-toggle="modal"
+                   data-target="#SignInModal">
+                   登入
+                </a>
             </li>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" v-if="getCurrentUser">
                 <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-align-justify
-                              navbar-toggle-icon"></i>
+                    <span class="avatar small-avatar" 
+                          style="background: rgb(160, 229, 173);">
+                        {{ getCurrentUser.username.substring(0, 1) }}
+                    </span>
+                    <span>{{ getCurrentUser.username }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     <router-link 
-                        v-if="true"
                         class="dropdown-item" 
+                        v-if="true"
+                        :to="{ name: 'user' }">
+                    <i class="fas fa-user"></i>
+                    基本資料</router-link>
+                    <router-link 
+                        class="dropdown-item" 
+                        v-if="true"
+                        :to="{ name: 'user-settings' }">
+                    <i class="fas fa-cog"></i>
+                    個人設定</router-link>
+                    <div class="dropdown-divider"></div>
+                    <router-link 
+                        class="dropdown-item" 
+                        v-if="true"
                         to="/sign-out">
-                    Sign Out</router-link>
+                    <i class="fas sign-out-alt"></i>
+                    登出</router-link>
                 </div>
             </li>
         </ul>
@@ -136,11 +146,35 @@
     </div>
 </footer>
 
+
+
+<!-- Modal -->
+<SignInModal
+    id="SignInModal"
+    :signInHandle="signIn">    
+</SignInModal>
+
+<SignUpModal
+    id="SignUpModal"
+    :signUpHandle="signUp">
+    
+</SignUpModal>
+
+<!-- Modal -->
+
 </div>
 </template>
 
 <script>
+
+import SignInModal from './components/SignInModal.vue'
+import SignUpModal from './components/SignUpModal.vue'
+
 export default {
+    components: {
+        SignInModal,
+        SignUpModal
+    },
     data: function() {
         return {
             articlesSearch: {
@@ -159,6 +193,10 @@ export default {
         },
         authIsSignIn: function() {
             return this.$store.getters['auth/getIsSignIn'];
+        },
+        getCurrentUser: function() {
+            console.log(this.$store.getters['users/getCurrentUser'])
+            return this.$store.getters['users/getCurrentUser'];
         }
     },
     methods: {
@@ -175,6 +213,70 @@ export default {
         narrowInputWidth: function() {
             console.log('blur');
             this.inputWidth = '100px';
+        },
+        signIn: function(user) {
+            return new Promise((resolve, reject) => {
+                this.$store.dispatch('auth/signInAction', user)
+                .then(result => {
+                    this.success = '登入成功: ' + result.user.email;
+
+                    // set current user to store.users
+                    this.$store
+                        .dispatch('users/getUserByUid', result.user.uid)
+                        .then(data => {
+                            this.$store.commit('users/setCurrentUser', data);
+                            resolve(data);
+                        })
+                })
+                .catch(error => {
+                    reject(error)
+                })
+            })
+        },
+        signUp: function(user) {
+            return new Promise ((resolve, reject) => {
+                this.$store.dispatch('auth/signUpAction', user)
+                .then((result) => {
+
+                    // Sign in
+                    this.$store.dispatch('auth/signInAction', user)
+                    .then((result) => {
+
+                        console.log('登入成功:', result.user.email);
+
+                        // 刪除密碼，另外創一個users的(自己創的collection)
+                        delete user.password;
+                        user.uid = result.user.uid;
+                        user.pushs = [];
+                        user.images = [];
+                        user.settings = {
+                            pagesize: 5,
+                            showmode: 'page'
+                        }
+                        // set current user to store.users
+                        this.$store
+                            .dispatch('users/addDataAction', user)
+                            .then(data => {
+                                this.$store.commit('users/setCurrentUser', data);
+                                resolve(data)
+                            })
+                        
+
+                        // send Email
+                        // this.$store.dispatch('auth/sendEmailVerification', result.user)
+                        // .then(() => {
+                        //     console.log('send email:', result.user.email);
+                        //     this.message = '已發送驗證信件，請至信箱驗證'
+                        // })
+                        // .catch((error) => {
+                        //     console.log(error);
+                        // })
+                    })
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+            })
         }
     },
     watch: {
@@ -193,6 +295,9 @@ html, body, #app{
     height: 100%;
     font-family: system,BlinkMacSystemFont,system latin,system emoji,system tc,sans-serif;
 }
+
+$nav-text-color: #1d525f;
+$nav-text-hover-color: #FAF0E6;
 
 #app {
     
@@ -233,20 +338,13 @@ html, body, #app{
     }
     .nav-item {
         a {
-            color: #1d525f;
-            font-size: 1.2rem;
+            color: $nav-text-color;
             font-weight: bold;
             text-align: center;
         }
-        a:hover { color: #FAF0E6; }
+        a:hover { color: $nav-text-hover-color; }
         a.router-link-exact-active {
-            color: #FAF0E6;
-        }
-        a.dropdown-item:hover {
-            background-color: #1d525f;
-        }
-        a.dropdown-item.router-link-exact-active {
-            background-color: #1d525f;
+            color: $nav-text-hover-color;
         }
         &.post-add-link {
             margin-right: 10px;
@@ -255,12 +353,48 @@ html, body, #app{
             margin-top: 7px;
             margin-right: 10px;
         }
+        &.dropdown {
+            .nav-link {
+                font-size: 1rem;
+            }
+            .dropdown-menu {
+
+            }
+            a.dropdown-item:hover {
+                background-color: $nav-text-color;
+            }
+            a.dropdown-item.router-link-exact-active {
+                background-color: $nav-text-color;
+            }
+        }
     }
     button.navbar-toggler {
-        color: #1d525f;
+        // color: $nav-text-color;
         .navbar-collapse-icon:hover {
             color: #FAF0E6;
         }
+    }
+    .avatar {
+        display: inline-block;
+        box-sizing: content-box;
+        color: #fff;
+        text-align: center;
+        vertical-align: top;
+        background-color: #e5ecf5;
+        font-weight: 400;
+        width: 48px;
+        height: 48px;
+        border-radius: 48px;
+        font-size: 24px;
+        line-height: 48px;
+    }
+    .small-avatar {
+        margin: -2px 5px -2px -6px !important;
+        width: 24px  !important;
+        height: 24px  !important;
+        border-radius: 24px  !important;
+        font-size: 12px  !important;
+        line-height: 24px  !important;
     }
 }
 

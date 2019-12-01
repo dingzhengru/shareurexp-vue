@@ -36,7 +36,7 @@ export default {
     name: 'Pagination',
     props: {
         currentPage: Number,
-        pageSize: Number,
+        pagesize: Number,
         data: Array
     },
     data: function () {
@@ -49,8 +49,8 @@ export default {
             // ceil 無條件進位
             if(_.isEmpty(data))
                 return 0;
-            return Math.ceil(data.length / this.pageSize);
-            // return Math.ceil(this.searchProductsByAll(this.searchText).length / this.pageSize);
+            return Math.ceil(data.length / this.pagesize);
+            // return Math.ceil(this.searchProductsByAll(this.searchText).length / this.pagesize);
         },
         prevPage: function() {
             if(this.currentPage <= 1)

@@ -41,7 +41,7 @@ export default {
         setAuthStateChanged({ commit }, payload) {
             console.log('setAuthStateChanged')
             return new Promise((resolve, reject) => {
-                firebase.auth().onAuthStateChanged((user) => {
+                firebase.auth().onAuthStateChanged(user => {
 
                     commit('setReady', true);
 
@@ -65,11 +65,11 @@ export default {
 
             return new Promise((resolve, reject) => {
                 firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((result) => {
+                .then(result => {
                     resolve(result);
                 })
-                .catch((error) => {
-                    reject('createUserError: ' + error.message);
+                .catch(error => {
+                    reject(error);
                 })
             })
         },
@@ -81,12 +81,17 @@ export default {
 
             return new Promise((resolve, reject) => {
                 firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((result) => {
+                .then(result => {
                     commit('setData', result.user);
                     commit('setIsSignIn', true);
                     resolve(result);
                 })
-                .catch((error) => {
+                .catch(error => {
+                    // error.code 登入會遇到的error code
+                    // auth/invalid-email  
+                    // auth/invalid-password
+                    // auth/wrong-password
+                    // auth/user-not-found
                     reject(error);
                 });
             });
@@ -94,11 +99,11 @@ export default {
         signOutAction({ commit }, payload) {
             console.log('signOutAction');
             return new Promise((resolve, reject) => {
-                firebase.auth().signOut().then(function() {
+                firebase.auth().signOut().then(() => {
                     commit('setIsSignIn', false);
                     resolve('sign out')
-                }).catch(function(error) {
-                    reject(error.message);
+                }).catch(error => {
+                    reject(error);
                 });
             });
         },
@@ -112,7 +117,7 @@ export default {
                 user.sendEmailVerification(actionCodeSettings)
                 .then(() => {
                     resolve();
-                }).catch(function(error) {
+                }).catch(error => {
                     reject(error.message);
                 });
             });

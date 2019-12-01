@@ -57,8 +57,8 @@ import tags from './tags.js'
 
 export default () => {
     initCollection(db, 'users', users);
-    initCollection(db, 'articles', articles);
-    initCollection(db, 'posts', posts);
+    // initCollection(db, 'articles', articles);
+    // initCollection(db, 'posts', posts);
     
 
     // initCollection(db, 'schools', addIncrementId(schools))

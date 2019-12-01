@@ -14,7 +14,7 @@ export default [
         pushs: [],
         images: [],
         settings: {
-            pageSize: 5,
+            pagesize: 5,
             showmode: 'page'
         }
     },
@@ -28,7 +28,7 @@ export default [
         pushs: [],
         images: [],
         settings: {
-            pageSize: 5,
+            pagesize: 5,
             showmode: 'page'
         }
     },
@@ -42,7 +42,7 @@ export default [
         pushs: [],
         images: [],
         settings: {
-            pageSize: 5,
+            pagesize: 5,
             showmode: 'page'
         }
     },
@@ -56,7 +56,7 @@ export default [
         pushs: [],
         images: [],
         settings: {
-            pageSize: 5,
+            pagesize: 5,
             showmode: 'page'
         }
     },

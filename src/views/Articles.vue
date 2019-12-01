@@ -1,36 +1,7 @@
 <template>
 <div v-on:scroll.passive="handleScroll">
-    <div class="row articles-filter">
-        <div class="articles-search col-12 col-sm-8 col-md-8">
-            <div class="input-group flex-nowrap">
-                <!-- <div class="input-group-prepend">
-                    <span class="input-group-text" id="addon-wrapping">
-                        <i class="fas fa-search"></i>
-                    </span>
-                </div>
-                <input type="text" 
-                       class="form-control" 
-                       v-model="search.text"
-                       placeholder="搜尋文章" 
-                       aria-describedby="addon-wrapping"
-                />
-                <i class="searchclear fas fa-times-circle"
-                   @click="search.text=''"
-                   v-if="search.text"></i> 
-               -->
-                <!-- <div class="input-group-append">
-                    <select class="form-control select-custom"
-                            v-model="search.field">
-                        <option value="">全部</option>
-                        <option value="title">標題</option>
-                        <option value="tags">標籤</option>
-                        <option value="creator">作者</option>
-                        <option value="content">文章內容</option>
-                    </select>
-                </div> -->
-            </div>
-        </div>
-        <div class="articles-sort col-2 col-sm-3">
+    <div class="articles-filter row">
+        <div class="articles-sort col-6">
             <select class="form-control" 
                     v-model="sort">
                 <option :value="{ field:'created', isAsc:false }" selected>最新文章</option>
@@ -41,8 +12,14 @@
                 <option :value="{ field:'ipViews', isAsc:true }">最少瀏覽</option>
             </select>
         </div>
-        <div class="articles-config">
-            <div class="dropdown">
+        <div class="articles-config col-6 text-right">
+            <div class="d-inline-block mr-2">
+                <button class="btn btn-secondary"
+                        @click="reloadArticles()">
+                    <i class="fas fa-redo-alt"></i>
+                </button>
+            </div>
+            <div class="dropdown d-inline-block">
                 <button class="btn btn-secondary dropdown-toggle" 
                         id="dropdownMenu1" 
                         data-toggle="dropdown">
@@ -107,15 +84,16 @@
     </div>
 
     <!-- 分頁 -->
-
-    <div class="pagination"
-         v-if="showmode == 'page'">
-        <Pagination 
-        :currentPage="pagination.currentPage"
-        :pageSize="pagination.pageSize"
-        :data="getSearchArticles"
-        @change-page="changePage">
-        </Pagination>
+    <div class="d-flex">
+        <div class="pagination mx-auto"
+             v-if="showmode == 'page'">
+            <Pagination 
+            :currentPage="pagination.currentPage"
+            :pagesize="pagination.pagesize"
+            :data="getSearchArticles"
+            @change-page="changePage">
+            </Pagination>
+        </div>
     </div>
 </div>
 </template>
@@ -153,7 +131,7 @@ export default {
             },
             pagination :{
                 currentPage: 1,
-                pageSize: 3
+                pagesize: 3
             },
             showmode: 'page', // page, scroll
             contentSize: 50
@@ -203,12 +181,6 @@ export default {
                 params: { id: id }
             });
         },
-        sortArticles: function(field) {
-            let sort = this.$store.state.articles.sort;
-            sort.orderByField = field;
-            sort.isAsc = !sort.isAsc;
-            this.$store.commit('articles/setSort', sort);
-        },
         limitContent: function(content) {
             let length = content.length;
             let limit = this.contentSize;
@@ -217,11 +189,17 @@ export default {
                 return content;
             return content.substring(0, limit);
         },
+        reloadArticles: function() {
+            this.$store.dispatch('articles/getDataAction')
+            .then((data) => {
+                console.log('reload.')
+            })
+        },
         changeShowmode: function(showmode) {
             this.showmode = showmode
             this.pagination = {
                 currentPage: 1,
-                pageSize: 3
+                pagesize: 3
             }
         },
         handleScroll: function(event) {
@@ -237,7 +215,7 @@ export default {
 
             if((document.body.scrollHeight - window.innerHeight) - scrollY <= offsetBottom) {
                 console.log('距離底部小於', offsetBottom)
-                this.pagination.pageSize = this.pagination.pageSize + 3;
+                this.pagination.pagesize = this.pagination.pagesize + 3;
             }
         },
         changePage: function(currentPage) {
@@ -254,7 +232,7 @@ export default {
         'pagination.currentPage': function(value, oldValue) {
             this.$store.commit('articles/setPage', this.pagination);
         },
-        'pagination.pageSize': function(value, oldValue) {
+        'pagination.pagesize': function(value, oldValue) {
             this.$store.commit('articles/setPage', this.pagination);
         },
         'sort.field': function(value, oldValue) {
@@ -298,6 +276,7 @@ export default {
         // 取消下拉選單的小三角形
         button.dropdown-toggle::after {
             border: 0;
+            margin: 0;
         }
         .dropdown-menu {
             min-width: 5rem;
@@ -351,5 +330,9 @@ export default {
             }
         }
     }
+}
+
+.pagination-row {
+    text-align: center;
 }
 </style>

@@ -76,7 +76,7 @@ export default {
                     user.pushs = [];
                     user.images = [];
                     user.settings = {
-                        pageSize: 5,
+                        pagesize: 5,
                         showmode: 'page'
                     }
                     this.$store
