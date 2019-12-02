@@ -107,11 +107,11 @@ export default {
                 });
             });
         },
-        sendEmailVerification(context, payload) {
+        sendEmailVerification({ state }, payload) {
             console.log('sendEmailVerification');
 
             // this user is auth user
-            let user = context.state.data || payload;
+            let user = state.data || payload;
 
             return new Promise((resolve, reject) => {
                 user.sendEmailVerification(actionCodeSettings)
@@ -122,6 +122,17 @@ export default {
                 });
             });
         },
+        sendPasswordResetEmail({ commit }, payload) {
+            let email = payload.email
+            return new Promise((resolve, reject) => {
+                firebase.auth().sendPasswordResetEmail(email)
+                .then(data => {
+                    resolve(data)
+                }).catch(error => {
+                    reject(error)
+                });
+            });
+        }
     },
 }
 

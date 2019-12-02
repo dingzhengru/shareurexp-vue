@@ -5,13 +5,13 @@
 
 <script>
 export default {
-    beforeCreate: function() {
+    created: function() {
         this.$store.dispatch('auth/signOutAction')
         .then(() => {
             this.$store.commit('users/setCurrentUser', null);
-            this.$router.push('/');
+            this.$router.replace('/');
         })
-        .catch((error) => {
+        .catch(error => {
             console.log(error);
         })
     }

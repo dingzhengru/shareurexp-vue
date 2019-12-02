@@ -1,6 +1,12 @@
 # shareurexp-vue(demo project)
 
 *  <a href="#project-setup">Project setup</a>
+*  <a href="#my-computed">my-computed</a>
+    *  <a href="#getCurrentUser">getCurrentUser</a>
+    *  <a href="#authIsReady">authIsReady</a>
+    *  <a href="#authIsSignIn">authIsSignIn</a>
+*  <a href="#my-methods">my-methods</a>
+    *  <a href="#setUserChecker">setUserChecker</a>
 *  <a href="#my-component">my-component</a>
     *  <a href="#Pagination">Pagination</a>
     *  <a href="#SignInModal">SignInModal</a>
@@ -48,6 +54,63 @@
 import { firebase, db, actionCodeSettings } from '../firebase.js'
 ```
 
+## my-computed
+*  列出幾個我覺得需要特別記起來的
+
+### getCurrentUser
+*  並非取得firebase auth的使用者，而是自己寫的users的
+```
+getCurrentUser: function() {
+    return this.$store.getters['users/getCurrentUser'];
+}
+```
+### authIsReady
+*  確認firebase auth是否準備好了
+```
+authIsReady: function() {
+    return this.$store.getters['auth/getIsReady'];
+}
+        
+```
+### authIsSignIn
+*  確認firebase auth是否有用戶登入
+
+```
+authIsSignIn: function() {
+    return this.$store.getters['auth/getIsSignIn'];
+}
+```
+
+## my-methods
+### setUserChecker
+*  因為不確定 firebase auth 的準備時間所以要設置interval去重複確認
+*  有使用到的computed: getCurrentUser, authIsReady, authIsSignIn
+
+```
+this.setUserChecker(() => {
+    // 放確認完 auth 與 currentUser 後想做的事
+})
+```
+```
+setUserChecker: function(callback, time) {
+    if(!_.isNumber(time))
+        time = 500
+
+    let userChecker = setInterval(() => {
+        if(!this.authIsReady)
+            return
+        if(this.authIsSignIn == false) {
+            clearInterval(userChecker)
+            return
+        }
+        // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+        if(this.getCurrentUser) {
+            callback()
+            clearInterval(userChecker)
+        }
+    }, time)
+}
+```
 ## my-component
 *  自己寫的component
 

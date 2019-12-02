@@ -2,6 +2,23 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
+/* user object
+{
+    id: 0,
+    uid: '',
+    email: '',
+    username: 'username',
+    created: now,
+    editDate: now,
+    pushArticles: [],
+    pushPosts: [],
+    images: [],
+    settings: {
+        pagesize: 5,
+        showmode: 'page'
+}
+*/
+
 export default {
     namespaced: true,
     state: {
@@ -170,6 +187,8 @@ export default {
                         user.id = (Number(doc.data().id) + 1) || 0;
                         user.created = firebase.firestore.Timestamp.fromDate(new Date());
                         user.editDate = user.created;
+                        user.pushArticles = [];
+                        user.pushPosts = [];
                         user.images = [];
 
                         db.collection('users').add(user);

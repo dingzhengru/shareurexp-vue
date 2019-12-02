@@ -1,40 +1,42 @@
 <template>
 <div>
-    <div class="user-posts">
+    <div class="user-articles">
+        <!-- {{ this.getCurrentUser.pushArticles }} -->
+        <!-- {{ getPushArticles }} -->
         <table class="table table table-hover">
             <thead>
                 
             </thead>
             <tbody>
-                <tr v-for="(post, index) in getPagePosts"
+                <tr v-for="(article, index) in getPagePushArticles"
                     :key="index">
                     <td>
-                        <router-link :to="{ name: 'article', params: { id: post.article}}">
-                            {{ getArticleById(post.article).title }}
+                        <router-link :to="{ name: 'article', params: { id: article.id}}">
+                            {{ article.title }}
                         </router-link>
                     </td>
                     <td>
                         <i class="fa fa-thumbs-up fa-1x"></i>
-                        {{ post.pushs.length }}
+                        {{ article.pushs.length }}
                     </td>
                     <td>
                         <i class="fa fa-clock fa-1x"></i>
-                        {{ dayjs(post.created.toMillis()).format('YYYY/MM/DD hh:mm') }}
+                        {{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm') }}
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-    <div class="d-flex">
-        <div class="pagination mx-auto">
-            <Pagination 
-            :currentPage="pagination.currentPage"
-            :pagesize="pagination.pagesize"
-            :data="getPosts"
-            @change-page="changePage">
-            </Pagination>
+        <div class="d-flex">
+            <div class="pagination mx-auto">
+                <Pagination 
+                :currentPage="pagination.currentPage"
+                :pagesize="pagination.pagesize"
+                :data="getPushArticles"
+                @change-page="changePage">
+                </Pagination>
+            </div>
         </div>
-    </div>
+    </div> 
 </div>
 </template>
 
@@ -66,20 +68,20 @@ export default {
         getCurrentUser: function() {
             return this.$store.getters['users/getCurrentUser'];
         },
-        getPosts: function() {
-            let id = this.$store.getters['users/getCurrentUser'].id
-            return this.$store.getters['posts/getPostsByUserId'](id)
-        },
         getArticleById: (app) => (id) => {
             return app.$store.getters['articles/getDataById'](id)
         },
-        getPagePosts: function() {
+        getPushArticles: function() {
+            let articleIds = this.getCurrentUser.pushArticles
+            return articleIds.map(articleId => this.getArticleById(articleId))
+        },
+        getPagePushArticles: function() {
             let currentPage = this.pagination.currentPage;
             let pagesize = this.pagination.pagesize;
             let startAt = pagesize * (currentPage - 1);
             let endAt = startAt + pagesize;
 
-            let data = this.getPosts || [];
+            let data = this.getPushArticles || [];
 
             return data.slice(startAt, endAt);
         }
@@ -87,12 +89,13 @@ export default {
     methods: {
         changePage: function(currentPage) {
             this.pagination.currentPage = currentPage
-        }
+        },
     }
 }
 </script>
 
 <style lang="scss" scoped>
+
 
 
 </style>

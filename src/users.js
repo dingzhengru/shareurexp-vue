@@ -11,7 +11,8 @@ export default [
         username: 'username0',
         created: now,
         editDate: now,
-        pushs: [],
+        pushArticles: [],
+        pushPosts: [],
         images: [],
         settings: {
             pagesize: 5,
@@ -25,7 +26,8 @@ export default [
         username: 'username1',
         created: now,
         editDate: now,
-        pushs: [],
+        pushArticles: [],
+        pushPosts: [],
         images: [],
         settings: {
             pagesize: 5,
@@ -39,7 +41,8 @@ export default [
         username: 'username2',
         created: now,
         editDate: now,
-        pushs: [],
+        pushArticles: [],
+        pushPosts: [],
         images: [],
         settings: {
             pagesize: 5,
@@ -53,7 +56,8 @@ export default [
         username: 'username3',
         created: now,
         editDate: now,
-        pushs: [],
+        pushArticles: [],
+        pushPosts: [],
         images: [],
         settings: {
             pagesize: 5,

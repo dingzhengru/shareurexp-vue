@@ -13,8 +13,14 @@
                             {{ article.title }}
                         </router-link>
                     </td>
-                    <td>{{ article.pushs.length }}</td>
-                    <td>{{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm:ss') }}</td>
+                    <td>
+                        <i class="fa fa-thumbs-up fa-1x"></i>
+                        {{ article.pushs.length }}
+                    </td>
+                    <td>
+                        <i class="fa fa-clock fa-1x"></i>
+                        {{ dayjs(article.created.toMillis()).format('YYYY/MM/DD hh:mm') }}
+                    </td>
                 </tr>
             </tbody>
         </table>

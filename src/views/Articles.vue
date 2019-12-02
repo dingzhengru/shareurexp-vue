@@ -147,6 +147,12 @@ export default {
         // 之後就把query清空
         if(this.search.text)
             this.$router.replace(this.$route.path)
+        
+        // 設置使用者設定 showmode
+        this.setUserChecker(() => {
+            this.showmode = this.getCurrentUser.settings.showmode
+        })
+        
 
         window.addEventListener('scroll', this.handleScroll, { passive: true });
     },
@@ -154,6 +160,15 @@ export default {
         window.removeEventListener('scroll', this.handleScroll);
     },
     computed: {
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        authIsReady: function() {
+            return this.$store.getters['auth/getIsReady'];
+        },
+        authIsSignIn: function() {
+            return this.$store.getters['auth/getIsSignIn'];
+        },
         getArticles: function() {
             return this.$store.getters['articles/getData'];
         },
@@ -217,6 +232,24 @@ export default {
                 console.log('距離底部小於', offsetBottom)
                 this.pagination.pagesize = this.pagination.pagesize + 3;
             }
+        },
+        setUserChecker: function(callback, time) {
+            if(!_.isNumber(time))
+                time = 500
+
+            let userChecker = setInterval(() => {
+                if(!this.authIsReady)
+                    return
+                if(this.authIsSignIn == false) {
+                    clearInterval(userChecker)
+                    return
+                }
+                // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+                if(this.getCurrentUser) {
+                    callback()
+                    clearInterval(userChecker)
+                }
+            }, time)
         },
         changePage: function(currentPage) {
             this.pagination.currentPage = currentPage;

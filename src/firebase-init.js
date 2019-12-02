@@ -56,7 +56,7 @@ import schools from './schools.js'
 import tags from './tags.js'
 
 export default () => {
-    initCollection(db, 'users', users);
+    // initCollection(db, 'users', users);
     // initCollection(db, 'articles', articles);
     // initCollection(db, 'posts', posts);
     

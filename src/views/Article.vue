@@ -225,21 +225,42 @@ export default {
             })
         },
         pushArticle: function(article) {
-            if(this.isPushed(article) || this.isPushSelf(article))
+            // 不能推 已推過 或 自己的文
+            if(this.isPushed(article) || 
+               this.isPushSelf(article) || 
+               !this.getCurrentUser)
                 return
+            // 加到article的pushs
             article.pushs.push(this.getCurrentUser.id)
             this.$store.dispatch('articles/updateDataAction', article)
-            .then((data) => {
+            .then(data => {
                 console.log('push ok')
+            })
+
+            //加到 user 的 pushArticles
+            this.getCurrentUser.pushArticles.push(article.id)
+            this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
+            .then(data => {
+                console.log('pushArticles ok')
             })
         },
         pushPost: function(post) {
-            if(this.isPushed(post) || this.isPushSelf(post))
+
+            if(this.isPushed(post) || 
+               this.isPushSelf(post) ||
+               !this.getCurrentUser)
                 return
             post.pushs.push(this.getCurrentUser.id)
             this.$store.dispatch('posts/updateDataAction', post)
             .then(data => {
                 console.log('push ok')
+            })
+
+            //加到 user 的 pushArticles
+            this.getCurrentUser.pushPosts.push(post.id)
+            this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
+            .then(data => {
+                console.log('pushPosts ok')
             })
         },
         addIpViews: function() {

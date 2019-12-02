@@ -14,14 +14,18 @@
             </div>
         </div>
     </div>
-    <div id="settingsAccordion" class="">
+    <div id="Accordion" class="">
         <div class="card user-settings-card w-50">
-            <div class="card-header" id="headingOne">
-                <button class="btn btn-link font-weight-bold" data-toggle="collapse" data-target="#settingsArticlesCollapse" aria-expanded="true" aria-controls="settingsArticlesCollapse">
+            <div class="card-header">
+                <button class="btn btn-link btn-block text-left font-weight-bold" 
+                        data-toggle="collapse" 
+                        data-target="#ArticlesCollapse" 
+                        aria-controls="ArticlesCollapse"
+                        aria-expanded="true" >
                     文章
                 </button>
             </div>
-            <div id="settingsArticlesCollapse" class="collapse show" aria-labelledby="headingOne" data-parent="#settingsAccordion">
+            <div id="ArticlesCollapse" class="collapse show" >
                 <div class="card-body d-flex">
                     <div class="align-self-center align-items-right mr-2">
                         <label for="pagesize">
@@ -69,29 +73,70 @@
             </div>
         </div>
         <!-- 文章 -->
+        <!-- 帳戶 -->
         <div class="card user-settings-card w-50">
-            <div class="card-header" id="headingTwo">
-                <button class="btn btn-link font-weight-bold" data-toggle="collapse" data-target="#settingsUserCollapse" aria-expanded="true" aria-controls="settingsUserCollapse">
+            <div class="card-header">
+                <button class="btn btn-link btn-block text-left font-weight-bold"
+                        data-toggle="collapse"
+                        data-target="#UserCollapse" 
+                        aria-controls="UserCollapse"
+                        aria-expanded="true" >
                     帳戶
                 </button>
             </div>
-            <div id="settingsUserCollapse" class="collapse show" aria-labelledby="headingTwo" data-parent="#settingsAccordion">
+            <div id="UserCollapse" class="collapse show">
                 <div class="card-body d-flex">
-                    <button class="btn btn-secondary mr-2">
+                    <button class="btn btn-secondary mr-2"
+                            data-toggle="modal"
+                            data-target="#ChangeUsernameModal">
                         變更用戶名
                     </button>
-                    <button class="btn btn-warning">
+                    <button class="btn btn-warning"
+                            @click="sendResetPasswordEmail()">
                         更改密碼
                     </button>
                 </div>
             </div>
         </div>
+        <!-- 帳戶 -->
+        <!-- 通知 -->
+        <div class="card user-settings-card w-50">
+            <div class="card-header">
+                <button class="btn btn-link btn-block text-left font-weight-bold"
+                        data-toggle="collapse"
+                        data-target="#NoticeCollapse" 
+                        aria-controls="NoticeCollapse"
+                        aria-expanded="true" >
+                    通知
+                </button>
+            </div>
+            <div id="NoticeCollapse" class="collapse show">
+                <div class="card-body d-flex">
+                    <div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Modal -->
+    <ChangeUsernameModal
+        id="ChangeUsernameModal"
+        :changeUsernameHandle="changeUsername">
+        
+    </ChangeUsernameModal>
 </div>
 </template>
 
 <script>
+
+import ChangeUsernameModal from '../components/ChangeUsernameModal.vue'
+
 export default {
+    components: {
+        ChangeUsernameModal
+    },
     data: function() {
         return {
             success: '',
@@ -107,11 +152,27 @@ export default {
         },
     },
     methods: {
-        changeUsername: function() {
-            this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
+        changeUsername: function(username) {
+            this.getCurrentUser.username = username
+            return new Promise((resolve, reject) => {
+                this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
+                .then(data => {
+                    resolve(data)
+                })
+                .catch(error => {
+                    reject(error)
+                })
+            })
         },
-        changePassword: function() {
-
+        sendResetPasswordEmail: function() {
+            this.$store.dispatch('auth/sendPasswordResetEmail', this.getCurrentUser)
+            .then(data => {
+                this.success = `已送出重置密碼的信件`
+            })
+            .catch(error => {
+                console.log(error)
+                this.error = error
+            })
         }
     },
     watch: {
@@ -135,7 +196,7 @@ export default {
 
 <style lang="scss" scoped>
 
-#settingsAccordion {
+#Accordion {
     .card-header {
         padding: 0px;
 

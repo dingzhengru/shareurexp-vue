@@ -64,14 +64,14 @@
                 </router-link>
             </li>
             <li class="nav-item"
-                v-if="this.$route.name != 'article' && getCurrentUser">
+                v-show="this.$route.name != 'article' && getCurrentUser">
                 <router-link class="nav-link" to="/articles/add">
                     <i class="fas fa-edit"></i>
                 </router-link>
             </li>
             <li class="nav-item"
-                v-if="!getCurrentUser">
-                <a href="#"
+                v-show="!getCurrentUser">
+                <a href=""
                    class="nav-link"
                    data-toggle="modal"
                    data-target="#SignUpModal">
@@ -79,8 +79,8 @@
                 </a>
             </li>
             <li class="nav-item"
-                v-if="!getCurrentUser">
-                <a href="#"
+                v-show="!getCurrentUser">
+                <a href=""
                    class="nav-link"
                    data-toggle="modal"
                    data-target="#SignInModal">
@@ -195,7 +195,6 @@ export default {
             return this.$store.getters['auth/getIsSignIn'];
         },
         getCurrentUser: function() {
-            console.log(this.$store.getters['users/getCurrentUser'])
             return this.$store.getters['users/getCurrentUser'];
         }
     },
@@ -207,11 +206,9 @@ export default {
             })
         },
         widenInputWidth: function() {
-            console.log('focus');
             this.inputWidth = '300px';
         },
         narrowInputWidth: function() {
-            console.log('blur');
             this.inputWidth = '100px';
         },
         signIn: function(user) {
@@ -263,14 +260,14 @@ export default {
                         
 
                         // send Email
-                        // this.$store.dispatch('auth/sendEmailVerification', result.user)
-                        // .then(() => {
-                        //     console.log('send email:', result.user.email);
-                        //     this.message = '已發送驗證信件，請至信箱驗證'
-                        // })
-                        // .catch((error) => {
-                        //     console.log(error);
-                        // })
+                        this.$store.dispatch('auth/sendEmailVerification', result.user)
+                        .then(() => {
+                            console.log('send email:', result.user.email);
+                            // this.message = '已發送驗證信件，請至信箱驗證'
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        })
                     })
                 })
                 .catch((error) => {

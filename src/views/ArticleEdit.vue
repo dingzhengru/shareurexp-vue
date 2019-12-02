@@ -67,6 +67,7 @@
 
 
 <script>
+import _ from 'lodash';
 import axios from 'axios';
 import imgurClient from '../imgur-api.js'
 import { VueEditor } from 'vue2-editor';
@@ -85,22 +86,23 @@ export default {
         }
     },
     created: function() {
-        let userChecker = setInterval(() => {
-            if(!this.authIsReady)
-                return
-            if(this.getIsSignIn == false) {
-                clearInterval(userChecker)
-                this.$router.push('/')
-            }
+        // 設置UserChecker檢查此用戶是否為 文章創作者
+        this.setUserChecker(() => {
             if(this.getCurrentUser.id != this.getArticle.creator) {
-                clearInterval(userChecker)
                 this.$router.push('/')
-            } else {
-                clearInterval(userChecker)
-            }
-        }, 500)
+            } 
+        })
     },
     computed: {
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        authIsReady: function() {
+            return this.$store.getters['auth/getIsReady'];
+        },
+        authIsSignIn: function() {
+            return this.$store.getters['auth/getIsSignIn'];
+        },
         getArticle: function() {
             let id = this.$route.params.id;
             return this.$store.getters['articles/getDataById'](id)
@@ -114,15 +116,6 @@ export default {
         getSchools() {
             return this.$store.getters['schools/getData'];
         },
-        getCurrentUser: function() {
-            return this.$store.getters['users/getCurrentUser'];
-        },
-        authIsReady: function() {
-            return this.$store.getters['auth/getIsReady'];
-        },
-        authIsSignIn: function() {
-            return this.$store.getters['auth/getIsSignIn'];
-        }
     },
     methods: {
         editArticle: function(article) {
@@ -133,6 +126,23 @@ export default {
                     params: { id: data.id }
                 })
             })
+        },
+        setUserChecker: function(callback, time) {
+            if(!_.isNumber(time))
+                time = 500
+
+            let userChecker = setInterval(() => {
+                if(!this.authIsReady)
+                    return
+                if(this.authIsSignIn == false) {
+                    clearInterval(userChecker)
+                    return
+                }
+                if(this.getCurrentUser) {
+                    callback()
+                    clearInterval(userChecker)
+                }
+            }, 500)
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 

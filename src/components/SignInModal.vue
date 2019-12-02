@@ -27,6 +27,7 @@
                 <div class="d-felx mb-3">
                     <div>
                         <input 
+                            type="email"
                             class="form-control text-center"
                             v-model="user.email"   
                             placeholder="電子信箱"
@@ -36,6 +37,7 @@
                 <div class="d-felx mb-3">
                     <div>
                         <input 
+                            type="password"
                             class="form-control text-center"
                             v-model="user.password"   
                             placeholder="密碼"
@@ -58,7 +60,7 @@
     import $ from 'jquery'
     
     export default {
-        name: 'LoginModal',
+        name: 'SignInModal',
         props: {
             id: String,
             signInHandle: Function

@@ -31,7 +31,7 @@
                         :to="{ name: 'user' }"
                         @click="console.log(123)">
                         <i class="fas fa-newspaper"></i> 
-                        文章
+                        發文
                     </router-link>
                     <router-link 
                         class="nav-link"
@@ -39,6 +39,13 @@
                         @click="console.log(123)">
                         <i class="fas fa-comment-dots"></i> 
                         回覆
+                    </router-link>
+                    <router-link 
+                        class="nav-link"
+                        :to="{ name: 'user-push-articles' }"
+                        @click="console.log(123)">
+                        <i class="fas fa-thumbs-up"></i> 
+                        推文
                     </router-link>
                     <router-link 
                         class="nav-link"
