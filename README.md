@@ -85,7 +85,7 @@ authIsSignIn: function() {
 ### setUserChecker
 *  因為不確定 firebase auth 的準備時間所以要設置interval去重複確認
 *  有使用到的computed: getCurrentUser, authIsReady, authIsSignIn
-
+*  使用 try catch 避免出錯時沒清掉 interval
 ```
 this.setUserChecker(() => {
     // 放確認完 auth 與 currentUser 後想做的事
@@ -97,15 +97,19 @@ setUserChecker: function(callback, time) {
         time = 500
 
     let userChecker = setInterval(() => {
-        if(!this.authIsReady)
-            return
-        if(this.authIsSignIn == false) {
-            clearInterval(userChecker)
-            return
-        }
-        // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
-        if(this.getCurrentUser) {
-            callback()
+        try {
+            if(!this.authIsReady)
+                return
+            if(this.authIsSignIn == false) {
+                clearInterval(userChecker)
+                return
+            }
+            // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+            if(this.getCurrentUser) {
+                callback()
+                clearInterval(userChecker)
+            }
+        } catch {
             clearInterval(userChecker)
         }
     }, time)

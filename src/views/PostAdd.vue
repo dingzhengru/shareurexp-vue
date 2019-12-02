@@ -40,7 +40,7 @@
 
 
 <script>
-
+import _ from 'lodash'
 import axios from 'axios';
 import { VueEditor } from 'vue2-editor';
 import imgurClient from '../imgur-api.js'
@@ -68,27 +68,21 @@ export default {
     created: function() {
         this.post.article = Number(this.$route.params.id)
 
-        let userTimer = setInterval(() => {
-            console.log('update user')
-
-            // check user ready
-            if(!this.$store.state.auth.isReady) 
-                return
-            // check sign in
-            if(!this.$store.state.auth.isSignIn)
-                clearInterval(userTimer)
-
-            let uid = this.$store.getters['auth/getData'].uid;
-
-            // this.article.creator = this.$store.getters['users/getUserByUid'](uid)
-            
-            this.$store.dispatch('users/getUserByUid', uid).then((data) => {
-                this.post.creator = data.id;
-                clearInterval(userTimer)
-            })
-        }, 500)
+        // 取得 user id 給 creator
+        this.setUserChecker(() => {
+            this.post.creator = this.getCurrentUser.id;
+        })
     },
     computed: {
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        authIsReady: function() {
+            return this.$store.getters['auth/getIsReady'];
+        },
+        authIsSignIn: function() {
+            return this.$store.getters['auth/getIsSignIn'];
+        },
         getArticle: function() {
             let id = this.$route.params.id;
             return this.$store.getters['articles/getDataById'](id)
@@ -98,7 +92,6 @@ export default {
         addPost: function(post) {
             this.$store.dispatch('posts/addDataAction', post)
             .then((data) => {
-                console.log('add post success');
 
                 // add id to article.posts
                 // add created to article.latestPostDate
@@ -117,6 +110,24 @@ export default {
             this.getArticle.posts.push(post.id)
             this.getArticle.latestPostDate = post.created
             this.$store.dispatch('articles/updateDataAction', this.getArticle);
+        },
+        setUserChecker: function(callback, time) {
+            if(!_.isNumber(time))
+                time = 500
+
+            let userChecker = setInterval(() => {
+                if(!this.authIsReady)
+                    return
+                if(this.authIsSignIn == false) {
+                    clearInterval(userChecker)
+                    return
+                }
+                // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+                if(this.getCurrentUser) {
+                    callback()
+                    clearInterval(userChecker)
+                }
+            }, time)
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 
@@ -138,7 +149,6 @@ export default {
                 'content-type': false,
                 'data': formData
             }).then(result => {
-                console.log(result.data.data.link, result.data);
                 let url = result.data.data.link;
 
                 // 將圖片網址加進使用者資料中

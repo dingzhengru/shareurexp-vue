@@ -88,6 +88,8 @@ export default {
     created: function() {
         // 設置UserChecker檢查此用戶是否為 文章創作者
         this.setUserChecker(() => {
+            if(!this.getCurrentUser)
+                this.$router.push('/')
             if(this.getCurrentUser.id != this.getArticle.creator) {
                 this.$router.push('/')
             } 
@@ -132,17 +134,22 @@ export default {
                 time = 500
 
             let userChecker = setInterval(() => {
-                if(!this.authIsReady)
-                    return
-                if(this.authIsSignIn == false) {
+                try {
+                    if(!this.authIsReady)
+                        return
+                    if(this.authIsSignIn == false) {
+                        clearInterval(userChecker)
+                        return
+                    }
+                    // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+                    if(this.getCurrentUser) {
+                        callback()
+                        clearInterval(userChecker)
+                    }
+                } catch {
                     clearInterval(userChecker)
-                    return
                 }
-                if(this.getCurrentUser) {
-                    callback()
-                    clearInterval(userChecker)
-                }
-            }, 500)
+            }, time)
         },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 

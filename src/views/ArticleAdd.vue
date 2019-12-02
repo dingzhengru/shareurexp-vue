@@ -105,33 +105,28 @@ export default {
         }
     },
     created: function() {
-        let userChecker = setInterval(() => {
-            if(!this.authIsReady)
-                return
-            if(this.authIsSignIn == false) {
-                clearInterval(userChecker)
+        // 沒登入就讓他轉到首頁
+        this.setUserChecker(() => {
+            if(!this.getCurrentUser)
                 this.$router.push('/')
-            } else if(this.authIsSignIn) {
-                clearInterval(userChecker)
-            }
-        }, 500)
+        })
     },
     computed: {
+        getCurrentUser: function() {
+            return this.$store.getters['users/getCurrentUser'];
+        },
+        authIsReady: function() {
+            return this.$store.getters['auth/getIsReady'];
+        },
+        authIsSignIn: function() {
+            return this.$store.getters['auth/getIsSignIn'];
+        },
         getTags() {
             return this.$store.getters['tags/getData'];
         },
         getSchools() {
             return this.$store.getters['schools/getData'];
         },
-        getCurrentUser: function() {
-            return this.$store.getters['users/getCurrentUser'];
-        },
-        // authIsReady: function() {
-        //     return this.$store.getters['auth/getIsReady'];
-        // },
-        // authIsSignIn: function() {
-        //     return this.$store.getters['auth/getIsSignIn'];
-        // }
     },
     methods: {
         addArticle: function(article) {
@@ -175,6 +170,28 @@ export default {
             this.errors = errors;
             return _.isEmpty(errors)
         },
+        setUserChecker: function(callback, time) {
+            if(!_.isNumber(time))
+                time = 500
+
+            let userChecker = setInterval(() => {
+                try {
+                    if(!this.authIsReady)
+                        return
+                    if(this.authIsSignIn == false) {
+                        clearInterval(userChecker)
+                        return
+                    }
+                    // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+                    if(this.getCurrentUser) {
+                        callback()
+                        clearInterval(userChecker)
+                    }
+                } catch {
+                    clearInterval(userChecker)
+                }
+            }, time)
+        },
         handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
 
             let formData = new FormData();
@@ -195,7 +212,6 @@ export default {
                 'content-type': false,
                 'data': formData
             }).then(result => {
-                console.log(result.data.data.link, result.data);
                 let url = result.data.data.link;
 
                 // 將圖片網址加進使用者資料中

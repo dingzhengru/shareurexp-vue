@@ -229,7 +229,6 @@ export default {
             let offsetBottom = 50;
 
             if((document.body.scrollHeight - window.innerHeight) - scrollY <= offsetBottom) {
-                console.log('距離底部小於', offsetBottom)
                 this.pagination.pagesize = this.pagination.pagesize + 3;
             }
         },
@@ -238,15 +237,19 @@ export default {
                 time = 500
 
             let userChecker = setInterval(() => {
-                if(!this.authIsReady)
-                    return
-                if(this.authIsSignIn == false) {
-                    clearInterval(userChecker)
-                    return
-                }
-                // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
-                if(this.getCurrentUser) {
-                    callback()
+                try {
+                    if(!this.authIsReady)
+                        return
+                    if(this.authIsSignIn == false) {
+                        clearInterval(userChecker)
+                        return
+                    }
+                    // 有登入 一定就會有currentuser 所以要避免因延遲沒執行到
+                    if(this.getCurrentUser) {
+                        callback()
+                        clearInterval(userChecker)
+                    }
+                } catch {
                     clearInterval(userChecker)
                 }
             }, time)
@@ -269,11 +272,9 @@ export default {
             this.$store.commit('articles/setPage', this.pagination);
         },
         'sort.field': function(value, oldValue) {
-            console.log(this.sort)
             this.$store.commit('articles/setSort', this.sort);
         },
         'sort.isAsc': function(value, oldValue) {
-            console.log(this.sort)
             this.$store.commit('articles/setSort', this.sort);
         },
     }
