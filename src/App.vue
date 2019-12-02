@@ -53,22 +53,9 @@
                 </div>
             </div>
         </form>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item post-add-link"
-                v-if="this.$route.name == 'article'">
-                <router-link 
-                    class="nav-link"
-                    :to="{ name: 'post-add',
-                           params: { id: this.$route.params.id }}">
-                    <i class="fas fa-comment-dots"></i>
-                </router-link>
-            </li>
-            <li class="nav-item"
-                v-show="this.$route.name != 'article' && getCurrentUser">
-                <router-link class="nav-link" to="/articles/add">
-                    <i class="fas fa-edit"></i>
-                </router-link>
-            </li>
+        <ul class="navbar-nav ml-auto"
+            v-show="getIsCurrentUserReady">
+            <!-- 未登入顯示 -->
             <li class="nav-item"
                 v-show="!getCurrentUser">
                 <a href=""
@@ -86,6 +73,22 @@
                    data-target="#SignInModal">
                    登入
                 </a>
+            </li>
+            <!-- 登入後顯示 -->
+            <li class="nav-item post-add-link"
+                v-if="this.$route.name == 'article'">
+                <router-link 
+                    class="nav-link"
+                    :to="{ name: 'post-add',
+                           params: { id: this.$route.params.id }}">
+                    <i class="fas fa-comment-dots"></i>
+                </router-link>
+            </li>
+            <li class="nav-item"
+                v-show="this.$route.name != 'article' && getCurrentUser">
+                <router-link class="nav-link" to="/articles/add">
+                    <i class="fas fa-edit"></i>
+                </router-link>
             </li>
             <li class="nav-item dropdown" v-if="getCurrentUser">
                 <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -151,12 +154,14 @@
 <!-- Modal -->
 <SignInModal
     id="SignInModal"
-    :signInHandle="signIn">    
+    :signInHandle="signIn"
+    v-if="!getCurrentUser">    
 </SignInModal>
 
 <SignUpModal
     id="SignUpModal"
-    :signUpHandle="signUp">
+    :signUpHandle="signUp"
+    v-if="!getCurrentUser">
     
 </SignUpModal>
 
@@ -196,6 +201,9 @@ export default {
         },
         getCurrentUser: function() {
             return this.$store.getters['users/getCurrentUser'];
+        },
+        getIsCurrentUserReady: function() {
+            return this.$store.getters['users/getIsCurrentUserReady'];
         }
     },
     methods: {

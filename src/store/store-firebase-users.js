@@ -24,6 +24,7 @@ export default {
     state: {
         data: null,
         currentUser: null,
+        isCurrentUserReady: false,
         sort: {
             field: 'id',
             isAsc: true
@@ -40,6 +41,9 @@ export default {
     getters: {
         getData: function(state) {
             return state.data;
+        },
+        getIsCurrentUserReady: function(state) {
+            return state.isCurrentUserReady
         },
         getCurrentUser: function(state) {
             return state.currentUser
@@ -140,6 +144,10 @@ export default {
         },
         setCurrentUser(state, payload) {
             state.currentUser = payload;
+            state.isCurrentUserReady = true
+        },
+        setIsCurrentUserReady(state, payload) {
+            state.isCurrentUserReady = payload
         },
         setSort(state, payload) {
             state.sort = payload;

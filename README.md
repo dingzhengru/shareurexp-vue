@@ -2,9 +2,10 @@
 
 *  <a href="#project-setup">Project setup</a>
 *  <a href="#my-computed">my-computed</a>
-    *  <a href="#getCurrentUser">getCurrentUser</a>
     *  <a href="#authIsReady">authIsReady</a>
     *  <a href="#authIsSignIn">authIsSignIn</a>
+    *  <a href="#getCurrentUser">getCurrentUser</a>
+    *  <a href="#getIsCurrentUserReady">getIsCurrentUserReady</a>
 *  <a href="#my-methods">my-methods</a>
     *  <a href="#setUserChecker">setUserChecker</a>
 *  <a href="#my-component">my-component</a>
@@ -57,13 +58,6 @@ import { firebase, db, actionCodeSettings } from '../firebase.js'
 ## my-computed
 *  列出幾個我覺得需要特別記起來的
 
-### getCurrentUser
-*  並非取得firebase auth的使用者，而是自己寫的users的
-```
-getCurrentUser: function() {
-    return this.$store.getters['users/getCurrentUser'];
-}
-```
 ### authIsReady
 *  確認firebase auth是否準備好了
 ```
@@ -80,6 +74,24 @@ authIsSignIn: function() {
     return this.$store.getters['auth/getIsSignIn'];
 }
 ```
+
+### getCurrentUser
+*  並非取得firebase auth的使用者，而是自己寫的users的
+```
+getCurrentUser: function() {
+    return this.$store.getters['users/getCurrentUser'];
+}
+```
+### getIsCurrentUserReady
+*  確認自創的users的 current user 是否準備好了
+*  目前用在顯示nav時的判斷，避免註冊與登入會先顯示出來
+
+```
+getIsCurrentUserReady: function() {
+    return this.$store.getters['users/getIsCurrentUserReady'];
+}
+```
+
 
 ## my-methods
 ### setUserChecker

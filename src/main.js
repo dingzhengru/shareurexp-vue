@@ -59,8 +59,12 @@ new Vue({
             if(!this.$store.state.auth.isReady)
                 return
             // check sign in
-            if(!this.$store.state.auth.isSignIn)
+            if(!this.$store.state.auth.isSignIn) {
+                this.$store.commit('users/setCurrentUser', null);
                 clearInterval(userTimer)
+                return
+            }
+                
 
             let uid = this.$store.getters['auth/getData'].uid || null;
             this.$store
