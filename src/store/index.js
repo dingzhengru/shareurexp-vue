@@ -9,7 +9,7 @@ import articles from './store-firebase-articles.js'
 import posts from './store-firebase-posts.js'
 import schools from './store-firebase-schools.js'
 import tags from './store-firebase-tags.js'
-
+import notices from './store-firebase-notices.js'
 
 export default new Vuex.Store({
   state: {
@@ -24,6 +24,7 @@ export default new Vuex.Store({
     articles: articles,
     posts: posts,
     schools: schools,
-    tags: tags
+    tags: tags,
+    notices: notices
   }
 })

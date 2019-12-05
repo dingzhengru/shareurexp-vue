@@ -2,12 +2,20 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
+// school object
+
+/*
+
+{
+    "name": "國立臺灣大學"
+}
+
+*/
+
 export default {
     namespaced: true,
     state: {
         data: null,
-        status: null,
-        error: null,
         sort: {
             field: 'id',
             isAsc: true
@@ -107,12 +115,6 @@ export default {
         setData(state, payload) {
             state.data = payload;
         },
-        setStatus(state, payload) {
-            state.status = payload;
-        },
-        setError(state, payload) {
-            state.error = payload
-        },
         setSort(state, payload) {
             state.sort = payload;
         },
@@ -146,7 +148,7 @@ export default {
         addDataAction({ dispatch, commit }, payload) {
             console.log('addDataAction');
 
-            let school = payload;
+            let data = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
@@ -156,17 +158,15 @@ export default {
                 .get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        school.id = (Number(doc.data().id) + 1) || 0;
-                        school.created = firebase.firestore.Timestamp.fromDate(new Date());
-                        school.editDate = school.created;
-                        school.images = [];
+                        data.id = (Number(doc.data().id) + 1) || 0;
+                        data.created = firebase.firestore.Timestamp.fromDate(new Date());
 
-                        db.collection('schools').add(school);
+                        db.collection('schools').add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(school);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -178,10 +178,10 @@ export default {
         removeDataAction({ dispatch, commit }, payload) {
             console.log('removeDataAction');
 
-            let school = payload;
+            let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('schools').where('id', '==', school.id).get()
+                db.collection('schools').where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -189,7 +189,7 @@ export default {
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(school);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -201,16 +201,15 @@ export default {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
-            let school = payload;
-            school.editDate = firebase.firestore.Timestamp.fromDate(new Date());
+            let data = payload;
 
             return new Promise((resolve, reject) => {
                 db.collection('schools')
-                .where('id', '==', school.id).get()
+                .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.update(school);
-                        resolve(school);
+                        doc.ref.update(data);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {

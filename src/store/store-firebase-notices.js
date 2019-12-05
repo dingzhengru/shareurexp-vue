@@ -2,12 +2,24 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
+// user: user id
+// creator: user id 創建這個通知的是誰(誰回覆的，或官方帳戶)
+// article: article id
+// type: 
+//      'official' 官方通知
+//      'post' 有新回覆
+// isRead: 是否已讀
 
-// tags object
-
-/*
+/* notices object
 {
-    name: "中國語文學系"
+    id: 0,
+    user: 1,
+    article: 2,
+    creator: 0,
+    created: now,
+    type: 'official',
+    content: '官方通知',
+    isRead: false
 }
 */
 
@@ -29,14 +41,22 @@ export default {
         }
     },
     getters: {
-        getData: (state) => {
+        getData: function(state) {
             return state.data;
         },
         getDataById: (state) => (id) => {
             let data = state.data || [];
             return data.find(item => item.id == id)
         },
-        getSortData: (state) => {
+        getDataByUserId: (state) => (id) => {
+            let data = state.data || [];
+            return data.filter(item => item.user == id)
+        },
+        getNotReadNoticesByUserId: (state) => (id) => {
+            let data = state.data || [];
+            return data.filter(item => item.user == id && !item.isRead)
+        },
+        getSortData: function(state) {
             let data = state.data || [];
             let field = state.sort.field;
             let isAsc = state.sort.isAsc;
@@ -48,7 +68,7 @@ export default {
                     return a[field] < b[field] ? 1 : -1;
             });
         },
-        getSearchData: (state) => {
+        getSearchData: function(state) {
             let data = state.data || [];
             let searchText = state.search.text;
             let searchField = state.search.field;
@@ -67,7 +87,7 @@ export default {
                 })
             }
         },
-        getPageData(state) {
+        getPageData: function(state) {
             let currentPage = state.pagination.currentPage;
             let pagesize = state.pagination.pagesize;
             let startAt = pagesize * (currentPage - 1);
@@ -77,7 +97,7 @@ export default {
 
             return data.slice(startAt, endAt);
         },
-        getFilterData(state, getters) {
+        getFilterData: function(state, getters) {
             // 取搜尋後再分割頁面的資料
 
             // page
@@ -94,17 +114,25 @@ export default {
             let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
-            // search => sort => page
-            let data = getters.getSearchData;
+            // sort => search => page
+            let data = getters.getSortData;
 
-            // sort
-            data = data.sort((a, b) => {
-                if(isAsc)
-                    return a[field] > b[field] ? 1 : -1;
-                else
-                    return a[field] < b[field] ? 1 : -1;
-            });
-            
+            if(_.isEmpty(searchField)) {
+                data = data
+                       .filter(function(d) {
+                        for(let x in d) {
+                            if(String(d[x]).toLowerCase().includes(searchText.toLowerCase())) 
+                                return d;
+                            }
+                        })
+            }
+            else {
+                data = data
+                       .filter((d) => {
+                            if(String(d[searchField]).toLowerCase().includes(searchText.toLowerCase())) 
+                                return d;
+                        })
+            }
 
             data = data.slice(startAt, endAt)
             return data;
@@ -131,15 +159,15 @@ export default {
             // state.data 固定用id排序，不要去動到他本身
 
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection('notices')
                 .orderBy('id')
                 .get()
-                .then((snapshot) => {
-                    let tags = snapshot.docs.map(doc => doc.data());
-                    commit('setData', tags);
-                    resolve(tags);
+                .then(snapshot => {
+                    let notices = snapshot.docs.map(doc => doc.data());
+                    commit('setData', notices);
+                    resolve(notices);
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })
@@ -151,16 +179,16 @@ export default {
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection('notices')
                 .orderBy('id', 'desc')
                 .limit(1)
                 .get()
-                .then((snapshot) => {
-                    snapshot.forEach((doc) => {
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
                         data.id = (Number(doc.data().id) + 1) || 0;
                         data.created = firebase.firestore.Timestamp.fromDate(new Date());
 
-                        db.collection('tags').add(data);
+                        db.collection('notices').add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
@@ -168,7 +196,7 @@ export default {
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error.message);
                     reject(error.message);
                 })
@@ -178,11 +206,11 @@ export default {
             console.log('removeDataAction');
 
             let data = payload;
-
+            
             return new Promise((resolve, reject) => {
-                db.collection('tags').where('id', '==', data.id).get()
-                .then((snapshot) => {
-                    snapshot.forEach((doc) => {
+                db.collection('notices').where('id', '==', data.id).get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
                         doc.ref.delete();
 
                         // update data(更新state的資料)
@@ -191,7 +219,7 @@ export default {
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error.message);
                 })
             })
@@ -203,15 +231,15 @@ export default {
             let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection('notices')
                 .where('id', '==', data.id).get()
-                .then((snapshot) => {
-                    snapshot.forEach((doc) => {
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
                         doc.ref.update(data);
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })

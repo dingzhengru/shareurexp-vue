@@ -14,10 +14,12 @@
 *  <a href="#scss-css">scss & css</a>
     *  <a href="#searchclear">searchclear</a>
     *  <a href="#avatar">avatar</a>
+    *  <a href="#"></a>
 *  <a href="css-animate">css animate</a>
 *  <a href="#firebase">firebase</a>
 *  <a href="#bootstrap">bootstrap</a>
     *  <a href="#bootstrap的置中">bootstrap的置中</a>
+    *  <a href="#有下拉軸的Dropdown">有下拉軸的Dropdown</a>
 *  <a href="#fort-awesome">fort-awesome</a>
 *  <a href="#vue2-editor">vue2-editor</a>
 *  <a href="#vue-select">vue-select</a>
@@ -318,6 +320,17 @@ export { firebase, db, actionCodeSettings };
         ...
     </div>
 </div>
+```
+
+### 有下拉軸的Dropdown
+*  將這段css加上去 dropdown menu 就可以固定高度且有下拉軸了
+
+```
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}
 ```
 
 **main.js**  

@@ -11,6 +11,8 @@ import 'bootstrap'
 
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css'
 import '@fortawesome/fontawesome-free/css/solid.min.css'
+import '@fortawesome/fontawesome-free/js/fontawesome.min.js'
+import '@fortawesome/fontawesome-free/js/solid.min.js'
 
 import 'dayjs/locale/zh-tw.js'
 
@@ -23,14 +25,14 @@ Vue.component("tippy", TippyComponent);
 
 import firebaseInit from './firebase-init.js'
 
-// firebaseInit()
+firebaseInit()
 
 
 new Vue({
     router,
     store,
     beforeCreate: function(){
-        // set user
+        // set auth
         this.$store.dispatch('auth/setAuthStateChanged')
         .then(() => {
             console.log('user ready')
@@ -50,22 +52,25 @@ new Vue({
 
         // set tags
         this.$store.dispatch('tags/getDataAction')
+
+        // set notices
+        this.$store.dispatch('notices/getDataAction')
     },
     created: function() {
         let userTimer = setInterval(() => {
             console.log('update user')
 
-            // check user ready
+            // check user ready 等待auth準備好
             if(!this.$store.state.auth.isReady)
                 return
-            // check sign in
+            // check sign in 確定沒登入就結束
             if(!this.$store.state.auth.isSignIn) {
                 this.$store.commit('users/setCurrentUser', null);
                 clearInterval(userTimer)
                 return
             }
                 
-
+            // 用auth uid去找 user 並設置 currentUser
             let uid = this.$store.getters['auth/getData'].uid || null;
             this.$store
                 .dispatch('users/getUserByUid', uid)

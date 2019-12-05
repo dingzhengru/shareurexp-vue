@@ -2,12 +2,28 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
+// post object
+
+// article: article id
+// creator: user id
+// pushs: user id list, 存推文的 user id
+
+/* 
+{
+    id: 0,
+    article: 2,
+    content: '<h3>內容0內容0內容0內容0內容0</h3>',
+    creator: 0,
+    created: now,
+    editDate: now,
+    pushs: [],
+}
+*/
+
 export default {
     namespaced: true,
     state: {
         data: null,
-        status: null,
-        error: null,
         sort: {
             field: 'id',
             isAsc: true
@@ -123,12 +139,6 @@ export default {
         setData(state, payload) {
             state.data = payload;
         },
-        setStatus(state, payload) {
-            state.status = payload;
-        },
-        setError(state, payload) {
-            state.error = payload
-        },
         setSort(state, payload) {
             state.sort = payload;
         },
@@ -162,24 +172,24 @@ export default {
         addDataAction({ dispatch, commit }, payload) {
             console.log('addDataAction');
 
-            let post = payload;
+            let data = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
                 db.collection('posts').orderBy('id', 'desc').limit(1).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        post.id = Number(doc.data().id) + 1;
-                        post.article = Number(post.article);
-                        post.created = firebase.firestore.Timestamp.fromDate(new Date());
-                        post.editDate = post.created;
+                        data.id = Number(doc.data().id) + 1;
+                        data.article = Number(data.article);
+                        data.created = firebase.firestore.Timestamp.fromDate(new Date());
+                        data.editDate = data.created;
 
-                        db.collection('posts').add(post);
+                        db.collection('posts').add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(post);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -190,10 +200,10 @@ export default {
         removeDataAction({ dispatch, commit }, payload) {
             console.log('removeDataAction');
 
-            let post = payload;
+            let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('posts').where('id', '==', post.id).get()
+                db.collection('posts').where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -201,7 +211,7 @@ export default {
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(post);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -213,16 +223,16 @@ export default {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
-            let post = payload;
-            post.editDate = firebase.firestore.Timestamp.fromDate(new Date())
+            let data = payload;
+            data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
 
             return new Promise((resolve, reject) => {
                 db.collection('posts')
-                .where('id', '==', post.id).get()
+                .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.update(post);
-                        resolve(post);
+                        doc.ref.update(data);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {

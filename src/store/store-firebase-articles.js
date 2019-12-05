@@ -2,6 +2,34 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
+
+// article object
+
+// creator: user id
+// posts: post id list
+// pushs: user id list 存推文的user id
+// school: school id
+// tags: tag id list
+// latestPostDate: 最新post的created
+// ipViews: ip list 儲存點入文章瀏覽的IP(不重複)
+
+/* 
+{
+    id: 0,
+    title: '標題0',
+    content: '<h3>內容0內容0內容0內容0內容0</h3>',
+    creator: 0,
+    created: now,
+    editDate: now,
+    posts: [],
+    pushs: [],
+    school: 50,
+    tags: [48, 78],
+    latestPostDate: now,
+    ipViews: [],
+}
+*/
+
 export default {
     namespaced: true,
     state: {
@@ -252,24 +280,24 @@ export default {
         addDataAction({ dispatch, commit }, payload) {
             console.log('addDataAction');
 
-            let article = payload;
+            let data = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
                 db.collection('articles').orderBy('id', 'desc').limit(1).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        article.id = Number(doc.data().id) + 1;
-                        article.created = new Date(Date.now());
-                        article.editDate = article.created;
-                        article.latestPostDate = article.created;
+                        data.id = Number(doc.data().id) + 1;
+                        data.created = new Date(Date.now());
+                        data.editDate = data.created;
+                        data.latestPostDate = data.created;
 
-                        db.collection('articles').add(article);
+                        db.collection('articles').add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(article);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -280,10 +308,10 @@ export default {
         removeDataAction({ dispatch, commit }, payload) {
             console.log('removeDataAction');
 
-            let article = payload;
+            let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('articles').where('id', '==', article.id).get()
+                db.collection('articles').where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -291,7 +319,7 @@ export default {
                         // update data(更新state的資料)
                         dispatch('getDataAction');
 
-                        resolve(article);
+                        resolve(data);
                     })
                 })
                 .catch((error) => {
@@ -303,24 +331,24 @@ export default {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
-            let article = payload;
+            let data = payload;
             
             return new Promise((resolve, reject) => {
                 db.collection('articles')
-                .where('id', '==', article.id).get()
+                .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         // title, content, school, tags 改變時才改變編輯時間
                         // array, object比較 用_.isEqual()
                         let data = doc.data()
-                        if(article.title != data.title || 
-                           article.content != data.content || 
-                           article.school != data.school ||
-                           !_.isEqual(article.tags, data.tags))
-                            article.editDate = firebase.firestore.Timestamp.fromDate(new Date())
+                        if(data.title != data.title || 
+                           data.content != data.content || 
+                           data.school != data.school ||
+                           !_.isEqual(data.tags, data.tags))
+                            data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
                         
-                        doc.ref.update(article)
-                        resolve(article);
+                        doc.ref.update(data)
+                        resolve(data);
                     })
                 })
                 .catch((error) => {

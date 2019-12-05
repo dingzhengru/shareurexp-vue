@@ -1,9 +1,12 @@
 const now = new Date();
 
-// posts: [回覆文章id]
-// pushs: [使用者id]
-// school: 學校id
-// tags: [科系id]
+// creator: user id
+// posts: post id list
+// pushs: user id list 存推文的user id
+// school: school id
+// tags: tag id list
+// latestPostDate: 最新post的created
+// ipViews: ip list 儲存點入文章瀏覽的IP(不重複)
 
 export default [
     {

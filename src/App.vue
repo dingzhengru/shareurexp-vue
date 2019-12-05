@@ -14,6 +14,9 @@
                   navbar-collapse-icon"></i>
     </button>
     <div class="collapse navbar-collapse" id="navbarContent">
+
+        <!-- Left -->
+
         <ul class="navbar-nav">
             <li class="nav-item active">
                 <router-link class="nav-link" to="/articles">文章</router-link>
@@ -22,6 +25,9 @@
                 <router-link class="nav-link" to="/tags">標籤</router-link>
             </li>
         </ul>
+
+        <!-- Center -->
+
         <form class="form-inline articles-search"
               @submit.prevent="goArticles(articlesSearch)">
             <div class="input-group">
@@ -53,6 +59,9 @@
                 </div>
             </div>
         </form>
+
+        <!-- Right -->
+
         <ul class="navbar-nav ml-auto"
             v-show="getIsCurrentUserReady">
             <!-- 未登入顯示 -->
@@ -90,10 +99,52 @@
                     <i class="fas fa-edit"></i>
                 </router-link>
             </li>
-            <li class="nav-item dropdown" v-if="getCurrentUser">
+
+            <!-- Dropdown -->
+
+            <li class="notice-dropdown nav-item dropdown" 
+                v-if="getCurrentUser"
+                @click="readNotices()"
+                ref="notices">
+                <a class="nav-link" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="notice-inner-counter"
+                          v-if="getNotReadNotices && getNotReadNotices.length > 0">
+                        {{ getNotReadNotices.length }}
+                    </span>
+                </a>
+                <div class="notice-menu dropdown-menu dropdown-menu-right">
+                    <div class="notice-header d-flex">
+                        通知
+                    </div>
+                    <div class="notice-content"
+                         v-for="(notice, index) in getNotices"
+                         :key="index"
+                         :style="!notice.isRead ? { 'background-color': '#F7DC6F' } : {}">
+                        <div class="notice-official d-flex"
+                             v-if="notice.type == 'official'">
+                            <div class="notice-message">
+                                <i class="fas fa-bullhorn"></i>
+                                官方通知: {{ notice.content }}
+                            </div>
+                        </div>
+                        <div class="notice-post d-flex"
+                             v-if="notice.type == 'post'"
+                             @click="goArticle(notice.article)">
+                            <div class="notice-message">
+                                <i class="fas fa-comments"></i>
+                                {{ getArticleById(notice.article).title }}
+                                {{ notice.content }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item dropdown user-dropdown" v-if="getCurrentUser">
                 <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="avatar small-avatar" 
-                          style="background: rgb(160, 229, 173);">
+                          :style="{ background: getCurrentUser.avatarColor }">
                         {{ getCurrentUser.username.substring(0, 1) }}
                     </span>
                     <span>{{ getCurrentUser.username }}</span>
@@ -127,6 +178,8 @@
 <main class="container">
 
     <router-view/>
+
+    {{ getNotReadNotices }}
 </main>
 
 <footer>
@@ -154,14 +207,12 @@
 <!-- Modal -->
 <SignInModal
     id="SignInModal"
-    :signInHandle="signIn"
-    v-if="!getCurrentUser">    
+    :signInHandle="signIn">    
 </SignInModal>
 
 <SignUpModal
     id="SignUpModal"
-    :signUpHandle="signUp"
-    v-if="!getCurrentUser">
+    :signUpHandle="signUp">
     
 </SignUpModal>
 
@@ -204,6 +255,17 @@ export default {
         },
         getIsCurrentUserReady: function() {
             return this.$store.getters['users/getIsCurrentUserReady'];
+        },
+        getArticleById: (app) => (id) => {
+            return app.$store.getters['articles/getDataById'](id)
+        },
+        getNotices: function() {
+            let id = this.getCurrentUser.id
+            return this.$store.getters['notices/getDataByUserId'](id)
+        },
+        getNotReadNotices: function() {
+            let id = this.getCurrentUser.id
+            return this.$store.getters['notices/getNotReadNoticesByUserId'](id)
         }
     },
     methods: {
@@ -211,6 +273,25 @@ export default {
             this.$router.push({
                 name: 'articles',
                 params: { searchText: search.text }
+            })
+        },
+        goArticle: function(id) {
+            this.$router.push({
+                name: 'article',
+                params: { id: id }
+            })
+        },
+        readNotices: function() {
+            this.getNotices.forEach(notice => {
+                // if(notice.isRead)
+                //     return
+
+                // 延遲改isRead
+                setTimeout(() => {
+                    // notice.isRead = true
+                    notice.isRead = !notice.isRead
+                    this.$store.dispatch('notices/updateDataAction', notice)
+                }, 3000)
             })
         },
         widenInputWidth: function() {
@@ -354,16 +435,70 @@ $nav-text-hover-color: #FAF0E6;
         &.post-add-link {
             margin-right: 10px;
         }
-        &.back-link {
-            margin-top: 7px;
-            margin-right: 10px;
-        }
-        &.dropdown {
+        &.notice-dropdown {
             .nav-link {
-                font-size: 1rem;
+                .notice-inner-counter {
+                    color: white;
+                    background-color: #E74C3C;
+                    font-size: 0.5rem;
+                    border-radius: 8px;
+                    text-align: center;
+                    padding-left: 1px;
+                    padding-right: 5px;
+                    padding-top: 5px;
+                    padding-bottom: 5px;
+                }
+            }
+            .notice-menu {
+                padding: 0px;
+                min-width: 400px;
+                font-weight: bold;
+
+                height: auto;
+                max-height: 300px;
+                overflow-x: hidden;
+                .notice-header {
+                    border-bottom: 2px solid #1b2028;
+                    font-size: 0.8rem;
+                    padding-top: 5px;
+                    padding-bottom: 5px;
+                    padding-left: 5px;
+                    
+                    background-color: #E5E7E9;
+                }
+                .notice-content {
+                    border-bottom: 2px solid #1b2028;
+                    font-size: 0.8rem;
+                    padding-top: 5px;
+                    padding-bottom: 5px;
+                    padding-left: 5px;
+                    
+                    &:hover {
+                        background-color: #99A3A4;
+
+                    }
+
+                    .notice-official {
+                        
+                    }
+                    
+                    .notice-post {
+                        cursor: pointer;
+                        color: blue;
+
+                        &:hover {
+                            color: $nav-text-hover-color;
+                        }
+                    }
+                }
+            }
+        }
+        &.user-dropdown {
+            .nav-link {
+                
             }
             .dropdown-menu {
-
+                
             }
             a.dropdown-item:hover {
                 background-color: $nav-text-color;

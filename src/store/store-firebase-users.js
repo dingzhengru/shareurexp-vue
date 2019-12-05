@@ -2,20 +2,40 @@ import { db, firebase } from '../firebase.js'
 
 import _ from 'lodash'
 
-/* user object
+
+// users object
+
+// uid 對應 auth uid
+// pushArticles 推過的文章
+// pushPosts 推過的回覆
+// images 在編輯器上傳的圖片(imgur api 或 自己寫的 express api)
+// settings 使用者設定 目前有pagesize, showmode
+// avatarColor 存顏色，套用在用css做的avatar背景色
+//      也可以考慮讓使用者自己上傳圖像，改存圖片網址
+
+/*
+avatarColors = [
+    '#EC7063', '#A569BD', '#5DADE2', '#45B39D', '#58D68D', 
+    '#F5B041', '#DC7633', '#CACFD2', '#99A3A4', '#566573',
+]
+*/
+
+/*
 {
     id: 0,
-    uid: '',
-    email: '',
-    username: 'username',
+    uid: 'VRB819bUm8g5eQKtdzzoYS2kQpr2',
+    email: 'qws12369vdx@gmail.com',
+    username: 'username0',
     created: now,
     editDate: now,
     pushArticles: [],
     pushPosts: [],
     images: [],
+    avatarColor: '#CD6155'
     settings: {
         pagesize: 5,
         showmode: 'page'
+    }
 }
 */
 
@@ -169,12 +189,12 @@ export default {
                 db.collection('users')
                 .orderBy('id')
                 .get()
-                .then((snapshot) => {
+                .then(snapshot => {
                     let users = snapshot.docs.map(doc => doc.data());
                     commit('setData', users);
                     resolve(users);
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })
@@ -184,20 +204,26 @@ export default {
 
             let user = payload;
 
+            let avatarColors = [
+                '#EC7063', '#A569BD', '#5DADE2', '#45B39D', '#58D68D', 
+                '#F5B041', '#DC7633', '#CACFD2', '#99A3A4', '#566573',
+            ]
+
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
                 db.collection('users')
                 .orderBy('id', 'desc')
                 .limit(1)
                 .get()
-                .then((snapshot) => {
-                    snapshot.forEach((doc) => {
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
                         user.id = (Number(doc.data().id) + 1) || 0;
                         user.created = firebase.firestore.Timestamp.fromDate(new Date());
                         user.editDate = user.created;
                         user.pushArticles = [];
                         user.pushPosts = [];
                         user.images = [];
+                        user.avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)]
 
                         db.collection('users').add(user);
 
@@ -207,7 +233,7 @@ export default {
                         resolve(user);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error(error.message);
                     reject(error.message);
                 })
@@ -221,7 +247,7 @@ export default {
             
             return new Promise((resolve, reject) => {
                 db.collection('users').where('id', '==', user.id).get()
-                .then((snapshot) => {
+                .then(snapshot => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
 
@@ -231,7 +257,7 @@ export default {
                         resolve(user);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error.message);
                 })
             })
@@ -246,13 +272,13 @@ export default {
             return new Promise((resolve, reject) => {
                 db.collection('users')
                 .where('id', '==', user.id).get()
-                .then((snapshot) => {
-                    snapshot.forEach((doc) => {
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
                         doc.ref.update(user);
                         resolve(user);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })
@@ -263,11 +289,11 @@ export default {
                 db.collection('users')
                 .where('uid', '==', uid)
                 .get()
-                .then((snapshot) => {
+                .then(snapshot => {
                     let users = snapshot.docs.map(doc => doc.data());
                     resolve(users[0]);
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })

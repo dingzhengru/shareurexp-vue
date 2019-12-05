@@ -1,6 +1,8 @@
 const now = new Date();
 
 // article: article id
+// creator: user id
+// pushs: user id list, 存推文的 user id
 
 export default [
     {
