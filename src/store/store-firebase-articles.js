@@ -33,6 +33,7 @@ import _ from 'lodash'
 export default {
     namespaced: true,
     state: {
+        collection: 'articles',
         data: null,
         status: null,
         error: null,
@@ -258,41 +259,48 @@ export default {
         },
     },
     actions: {
+        setWatchDataAction({ state, commit }, payload) {
+            db.collection(state.collection)
+            .onSnapshot(snapshot => {
+                let data = snapshot.docs.map(doc => doc.data());
+                commit('setData', data);
+            });
+        },
         getDataAction({ state, commit }, payload) {
             console.log('getDataAction');
 
             // state.data 固定用id排序，不要去動到他本身
 
             return new Promise((resolve, reject) => {
-                db.collection('articles')
+                db.collection(state.collection)
                 .orderBy('id')
                 .get()
-                .then((snapshot) => {
-                    let articles = snapshot.docs.map(doc => doc.data());
-                    commit('setData', articles);
-                    resolve(articles);
+                .then(snapshot => {
+                    let data = snapshot.docs.map(doc => doc.data());
+                    commit('setData', data);
+                    resolve(data);
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })
         },
-        addDataAction({ dispatch, commit }, payload) {
+        addDataAction({ state, commit, dispatch }, payload) {
             console.log('addDataAction');
 
             let data = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
-                db.collection('articles').orderBy('id', 'desc').limit(1).get()
-                .then((snapshot) => {
+                db.collection(state.collection).orderBy('id', 'desc').limit(1).get()
+                .then(snapshot => {
                     snapshot.forEach((doc) => {
                         data.id = Number(doc.data().id) + 1;
                         data.created = new Date(Date.now());
                         data.editDate = data.created;
                         data.latestPostDate = data.created;
 
-                        db.collection('articles').add(data);
+                        db.collection(state.collection).add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
@@ -300,19 +308,19 @@ export default {
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error.message);
                 })
             })
         },
-        removeDataAction({ dispatch, commit }, payload) {
+        removeDataAction({ state, commit, dispatch }, payload) {
             console.log('removeDataAction');
 
             let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('articles').where('id', '==', data.id).get()
-                .then((snapshot) => {
+                db.collection(state.collection).where('id', '==', data.id).get()
+                .then(snapshot => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
 
@@ -322,21 +330,21 @@ export default {
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error.message);
                 })
             })
         },
-        updateDataAction({ dispatch, commit }, payload) {
+        updateDataAction({ state, commit, dispatch }, payload) {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;
             
             return new Promise((resolve, reject) => {
-                db.collection('articles')
+                db.collection(state.collection)
                 .where('id', '==', data.id).get()
-                .then((snapshot) => {
+                .then(snapshot => {
                     snapshot.forEach((doc) => {
                         // title, content, school, tags 改變時才改變編輯時間
                         // array, object比較 用_.isEqual()
@@ -348,10 +356,14 @@ export default {
                             data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
                         
                         doc.ref.update(data)
+
+                        // update data(更新state的資料)
+                        dispatch('getDataAction');
+                        
                         resolve(data);
                     })
                 })
-                .catch((error) => {
+                .catch(error => {
                     reject(error);
                 })
             })

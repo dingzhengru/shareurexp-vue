@@ -59,7 +59,7 @@ import notices from './database/notices.js'
 
 
 export default () => {
-    initCollection(db, 'users', users);
+    // initCollection(db, 'users', users);
     // initCollection(db, 'articles', articles);
     // initCollection(db, 'posts', posts);
     

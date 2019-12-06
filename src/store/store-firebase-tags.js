@@ -14,6 +14,7 @@ import _ from 'lodash'
 export default {
     namespaced: true,
     state: {
+        collection: 'tags',
         data: null,
         sort: {
             field: 'id',
@@ -125,33 +126,40 @@ export default {
         }
     },
     actions: {
+        setWatchDataAction({ state, commit }, payload) {
+            db.collection(state.collection)
+            .onSnapshot(snapshot => {
+                let data = snapshot.docs.map(doc => doc.data());
+                commit('setData', data);
+            });
+        },
         getDataAction({ state, commit }, payload) {
             console.log('getDataAction');
 
             // state.data 固定用id排序，不要去動到他本身
 
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection(state.collection)
                 .orderBy('id')
                 .get()
                 .then((snapshot) => {
-                    let tags = snapshot.docs.map(doc => doc.data());
-                    commit('setData', tags);
-                    resolve(tags);
+                    let data = snapshot.docs.map(doc => doc.data());
+                    commit('setData', data);
+                    resolve(data);
                 })
                 .catch((error) => {
                     reject(error);
                 })
             })
         },
-        addDataAction({ dispatch, commit }, payload) {
+        addDataAction({ state, commit, dispatch }, payload) {
             console.log('addDataAction');
 
             let data = payload;
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection(state.collection)
                 .orderBy('id', 'desc')
                 .limit(1)
                 .get()
@@ -160,7 +168,7 @@ export default {
                         data.id = (Number(doc.data().id) + 1) || 0;
                         data.created = firebase.firestore.Timestamp.fromDate(new Date());
 
-                        db.collection('tags').add(data);
+                        db.collection(state.collection).add(data);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
@@ -174,13 +182,13 @@ export default {
                 })
             })
         },
-        removeDataAction({ dispatch, commit }, payload) {
+        removeDataAction({ state, commit, dispatch }, payload) {
             console.log('removeDataAction');
 
             let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('tags').where('id', '==', data.id).get()
+                db.collection(state.collection).where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -196,18 +204,20 @@ export default {
                 })
             })
         },
-        updateDataAction({ dispatch, commit }, payload) {
+        updateDataAction({ state, commit, dispatch }, payload) {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;
 
             return new Promise((resolve, reject) => {
-                db.collection('tags')
+                db.collection(state.collection)
                 .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
                         doc.ref.update(data);
+                        // update data(更新state的資料)
+                        dispatch('getDataAction');
                         resolve(data);
                     })
                 })

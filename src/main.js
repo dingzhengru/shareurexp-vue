@@ -55,6 +55,9 @@ new Vue({
 
         // set notices
         this.$store.dispatch('notices/getDataAction')
+
+        // set notices watch 即時更新通知的設置(onSnapshot)
+        this.$store.dispatch('notices/setWatchDataAction')
     },
     created: function() {
         let userTimer = setInterval(() => {

@@ -1,6 +1,7 @@
 # shareurexp-vue(demo project)
 
 *  <a href="#project-setup">Project setup</a>
+*  <a href="#store-firebase">store-firebase</a>
 *  <a href="#my-computed">my-computed</a>
     *  <a href="#authIsReady">authIsReady</a>
     *  <a href="#authIsSignIn">authIsSignIn</a>
@@ -55,6 +56,61 @@
 **use in other .js, .vue**  
 ```
 import { firebase, db, actionCodeSettings } from '../firebase.js'
+```
+
+## store-firebase
+*  為firebase寫的 vue store
+*  包含獲取、新增、修改、刪除、即時更新(資料更動時)
+*  還包含搜尋、排序、分頁
+*  要把store中的 state.collection 改成要對應的 firebase collection
+```
+import { db, firebase } from '../firebase.js'
+
+export default {
+    namespaced: true,
+    state: {
+        collection: 'your-firebase-collection',
+        data: null,
+        sort: {
+            field: 'id',
+            isAsc: true
+        },
+        search: {
+            text: '',
+            field: '',
+        },
+        pagination: {
+            currentPage: null,
+            pagesize: null
+        }
+    },
+    getters: {
+        getData: function(state) {},
+        getDataById: (state) => (id) => {},
+        getSortData: function(state) {},
+        getSearchData: function(state) {},
+        getPageData: function(state) {},
+        getFilterData: function(state, getters) {
+            // sort => search => page
+        }
+    },
+    mutations: {
+        setData(state, payload) {},
+        setSort(state, payload) {},
+        setSearch(state, payload) {},
+        setPage(state, payload) {}
+    },
+    actions: {
+        setWatchDataAction({ state, commit }, payload) {},
+        getDataAction({ state, commit }, payload) {},
+        addDataAction({ state, commit, dispatch  }, payload) {},
+        removeDataAction({ state, commit, dispatch }, payload) {},
+        updateDataAction({ state, commit, dispatch }, payload) {}
+    },
+}
+
+
+
 ```
 
 ## my-computed

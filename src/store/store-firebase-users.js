@@ -42,6 +42,7 @@ avatarColors = [
 export default {
     namespaced: true,
     state: {
+        collection: 'users',
         data: null,
         currentUser: null,
         isCurrentUserReady: false,
@@ -180,26 +181,48 @@ export default {
         }
     },
     actions: {
-        getDataAction({ state, commit }, payload) {
-            console.log('getDataAction');
-
-            // state.data 固定用id排序，不要去動到他本身
-
+        getUserByUid({ state, commit }, payload) {
+            let uid = payload;
             return new Promise((resolve, reject) => {
-                db.collection('users')
-                .orderBy('id')
+                db.collection(state.collection)
+                .where('uid', '==', uid)
                 .get()
                 .then(snapshot => {
-                    let users = snapshot.docs.map(doc => doc.data());
-                    commit('setData', users);
-                    resolve(users);
+                    let data = snapshot.docs.map(doc => doc.data());
+                    resolve(data[0]);
                 })
                 .catch(error => {
                     reject(error);
                 })
             })
         },
-        addDataAction({ dispatch, commit }, payload) {
+        setWatchDataAction({ state, commit }, payload) {
+            db.collection(state.collection)
+            .onSnapshot(snapshot => {
+                let data = snapshot.docs.map(doc => doc.data());
+                commit('setData', data);
+            });
+        },
+        getDataAction({ state, commit }, payload) {
+            console.log('getDataAction');
+
+            // state.data 固定用id排序，不要去動到他本身
+
+            return new Promise((resolve, reject) => {
+                db.collection(state.collection)
+                .orderBy('id')
+                .get()
+                .then(snapshot => {
+                    let data = snapshot.docs.map(doc => doc.data());
+                    commit('setData', data);
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+            })
+        },
+        addDataAction({ state, commit, dispatch }, payload) {
             console.log('addDataAction');
 
             let user = payload;
@@ -211,7 +234,7 @@ export default {
 
             // 直接從資料庫找最大的ID，+1之後當新資料的ID
             return new Promise((resolve, reject) => {
-                db.collection('users')
+                db.collection(state.collection)
                 .orderBy('id', 'desc')
                 .limit(1)
                 .get()
@@ -225,7 +248,7 @@ export default {
                         user.images = [];
                         user.avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)]
 
-                        db.collection('users').add(user);
+                        db.collection(state.collection).add(user);
 
                         // update data(更新state的資料)
                         dispatch('getDataAction');
@@ -239,14 +262,14 @@ export default {
                 })
             })
         },
-        removeDataAction({ dispatch, commit }, payload) {
+        removeDataAction({ state, commit, dispatch }, payload) {
             console.log('removeDataAction');
 
             let user = payload;
             user.editDate = new firebase.firestore.Timestamp.fromDate(new Date());
             
             return new Promise((resolve, reject) => {
-                db.collection('users').where('id', '==', user.id).get()
+                db.collection(state.collection).where('id', '==', user.id).get()
                 .then(snapshot => {
                     snapshot.forEach((doc) => {
                         doc.ref.delete();
@@ -262,7 +285,7 @@ export default {
                 })
             })
         },
-        updateDataAction({ dispatch, commit }, payload) {
+        updateDataAction({ state, commit, dispatch }, payload) {
             console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
@@ -270,28 +293,15 @@ export default {
             user.editDate = new Date(Date.now());
 
             return new Promise((resolve, reject) => {
-                db.collection('users')
+                db.collection(state.collection)
                 .where('id', '==', user.id).get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
                         doc.ref.update(user);
+                        // update data(更新state的資料)
+                        dispatch('getDataAction');
                         resolve(user);
                     })
-                })
-                .catch(error => {
-                    reject(error);
-                })
-            })
-        },
-        getUserByUid({ commit }, payload) {
-            let uid = payload;
-            return new Promise((resolve, reject) => {
-                db.collection('users')
-                .where('uid', '==', uid)
-                .get()
-                .then(snapshot => {
-                    let users = snapshot.docs.map(doc => doc.data());
-                    resolve(users[0]);
                 })
                 .catch(error => {
                     reject(error);
