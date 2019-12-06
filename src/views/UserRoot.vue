@@ -28,24 +28,27 @@
                 <nav class="user-sidebar nav flex-column nav-pills">
                     <router-link 
                         class="nav-link"
-                        :to="{ name: 'user' }"
-                        @click="console.log(123)">
+                        :to="{ name: 'user' }">
                         <i class="fas fa-newspaper"></i> 
                         發文
                     </router-link>
                     <router-link 
                         class="nav-link"
-                        :to="{ name: 'user-posts' }"
-                        @click="console.log(123)">
+                        :to="{ name: 'user-posts' }">
                         <i class="fas fa-comment-dots"></i> 
                         回覆
                     </router-link>
                     <router-link 
                         class="nav-link"
-                        :to="{ name: 'user-push-articles' }"
-                        @click="console.log(123)">
+                        :to="{ name: 'user-push-articles' }">
                         <i class="fas fa-thumbs-up"></i> 
                         推文
+                    </router-link>
+                    <router-link 
+                        class="nav-link"
+                        :to="{ name: 'user-notices' }">
+                        <i class="fas fa-bell"></i> 
+                        通知
                     </router-link>
                     <router-link 
                         class="nav-link"

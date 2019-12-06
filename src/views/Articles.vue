@@ -40,10 +40,10 @@
     <div class="articles">
         <div class="row articles-row"
              v-for="(article, index) in getArticlesFilter"
-             :key="index"> 
+             :key="index"
+             @click="goArticle(article.id)"> 
             <div class="col-6 col-sm-4 col-md-6 articles-left">
-                <div class="articles-title"
-                     @click="goArticle(article.id)">
+                <div class="articles-title">
                     {{ article.title }}
                 </div>
                 <div class="articles-content"
@@ -330,8 +330,9 @@ export default {
         border-top: 1px solid #F0F3F4; 
         padding-bottom: 10px;
 
-        &:nth-child(even) {
+        &:hover {
             background-color: #F0F3F4;
+            cursor: pointer;
         }
         &:first-child {
             border-top: 0px; 
@@ -343,7 +344,6 @@ export default {
                 color: black;
             }
             .articles-title:hover {
-                color: #7F8C8D;
                 text-decoration: none;
             }
             .articles-content {

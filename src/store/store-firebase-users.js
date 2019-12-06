@@ -196,6 +196,16 @@ export default {
                 })
             })
         },
+        setWatchById({ state, commit }, payload) {
+            let id = payload
+
+            db.collection(state.collection)
+            .where('id', '==', id)
+            .onSnapshot(snapshot => {
+                let data = snapshot.docs.map(doc => doc.data())[0];
+                commit('setCurrentUser', data)
+            });
+        },
         setWatchDataAction({ state, commit }, payload) {
             db.collection(state.collection)
             .onSnapshot(snapshot => {

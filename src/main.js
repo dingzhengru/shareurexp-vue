@@ -25,7 +25,7 @@ Vue.component("tippy", TippyComponent);
 
 import firebaseInit from './firebase-init.js'
 
-firebaseInit()
+// firebaseInit()
 
 
 new Vue({
@@ -55,9 +55,6 @@ new Vue({
 
         // set notices
         this.$store.dispatch('notices/getDataAction')
-
-        // set notices watch 即時更新通知的設置(onSnapshot)
-        this.$store.dispatch('notices/setWatchDataAction')
     },
     created: function() {
         let userTimer = setInterval(() => {
@@ -78,7 +75,11 @@ new Vue({
             this.$store
                 .dispatch('users/getUserByUid', uid)
                 .then(data => {
+                    // set Current user
                     this.$store.commit('users/setCurrentUser', data);
+
+                    // 監看CurrentUser 不用監看整個users
+                    this.$store.dispatch('users/setWatchById', data.id);
                     clearInterval(userTimer);
             })
         }, 500)

@@ -43,6 +43,7 @@ export default [
         pushPosts: [],
         images: [],
         avatarColor: '#EC7063',
+        notices: [],
         settings: {
             pagesize: 5,
             showmode: 'page'
@@ -59,6 +60,7 @@ export default [
         pushPosts: [],
         images: [],
         avatarColor: '#EC7063',
+        notices: [],
         settings: {
             pagesize: 5,
             showmode: 'page'
@@ -75,6 +77,7 @@ export default [
         pushPosts: [],
         images: [],
         avatarColor: '#5DADE2',
+        notices: [],
         settings: {
             pagesize: 5,
             showmode: 'page'
@@ -91,6 +94,7 @@ export default [
         pushPosts: [],
         images: [],
         avatarColor: '#5DADE2',
+        notices: [],
         settings: {
             pagesize: 5,
             showmode: 'page'

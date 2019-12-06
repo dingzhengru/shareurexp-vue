@@ -7,6 +7,7 @@ import UserArticles from '../views/UserArticles.vue'
 import UserPosts from '../views/UserPosts.vue'
 import UserSettings from '../views/UserSettings.vue'
 import UserPushArticles from '../views/UserPushArticles.vue'
+import UserNotices from '../views/UserNotices.vue'
 import SignIn from '../views/SignIn.vue'
 import SignOut from '../views/SignOut.vue'
 import SignUp from '../views/SignUp.vue'
@@ -49,6 +50,11 @@ const routes = [
               path: 'push-articles',
               name: 'user-push-articles',
               component: UserPushArticles
+            },
+            {
+                path: 'notices',
+                name: 'user-notices',
+                component: UserNotices
             },
             {
               path: 'settings',

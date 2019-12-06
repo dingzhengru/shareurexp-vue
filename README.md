@@ -63,6 +63,7 @@ import { firebase, db, actionCodeSettings } from '../firebase.js'
 *  包含獲取、新增、修改、刪除、即時更新(資料更動時)
 *  還包含搜尋、排序、分頁
 *  要把store中的 state.collection 改成要對應的 firebase collection
+*  setWatchById 是監控某個特定id用的，目前用在users.currentUser
 ```
 import { db, firebase } from '../firebase.js'
 
@@ -101,6 +102,7 @@ export default {
         setPage(state, payload) {}
     },
     actions: {
+        setWatchById({ state, commit }, payload) {},
         setWatchDataAction({ state, commit }, payload) {},
         getDataAction({ state, commit }, payload) {},
         addDataAction({ state, commit, dispatch  }, payload) {},

@@ -86,6 +86,13 @@ export default {
         getArticle: function() {
             let id = this.$route.params.id;
             return this.$store.getters['articles/getDataById'](id)
+        },
+        getPosts: function() {
+            let id = this.getArticle.id
+            return this.$store.getters['posts/getPostsByArticleId'](id)
+        },
+        getUserById: (app) => (id) => {
+            return app.$store.getters['users/getDataById'](id)
         }
     },
     methods: {
@@ -96,6 +103,9 @@ export default {
                 // add id to article.posts
                 // add created to article.latestPostDate
                 this.addArticlePosts(data);
+
+                // add notice
+                this.addNotice(data)
                 
                 this.$router.push({
                     name: 'article',
@@ -110,6 +120,39 @@ export default {
             this.getArticle.posts.push(post.id)
             this.getArticle.latestPostDate = post.created
             this.$store.dispatch('articles/updateDataAction', this.getArticle);
+        },
+        addNotice: function(post) {
+            let notice = {
+                creator: post.creator,
+                article: post.article,
+                type: 'post',
+                content: '有新的回覆',
+                readUsers: [],
+            }
+            this.$store.dispatch('notices/addDataAction', notice)
+            .then(data => {
+                // 給文章與回覆的使用者 通知
+                let users = []
+
+                // 加入整串使用者
+                users.push(this.getArticle.creator)
+                this.getPosts.forEach(post => users.push(post.creator))
+
+                // 去除重複使用者 & 刪除自己
+                users = users.filter((item, index, self) => {
+                    return self.indexOf(item) == index && 
+                           item != post.creator
+                })
+
+                // 每個使用者添加一個通知(要用 unshift 把新通知放在最前面)
+                users.forEach(userId => {
+                    let user = this.getUserById(userId)
+
+                    // unshift
+                    user.notices.unshift(data.id)
+                    this.$store.dispatch('users/updateDataAction', user)
+                })
+            })
         },
         setUserChecker: function(callback, time) {
             if(!_.isNumber(time))

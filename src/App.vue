@@ -118,23 +118,23 @@
                         通知
                     </div>
                     <div class="notice-content"
-                         v-for="(notice, index) in getNotices"
+                         v-for="(noticeId, index) in getFilterNotices"
                          :key="index"
-                         :style="!notice.isRead ? { 'background-color': '#F7DC6F' } : {}">
+                         :style="!isReadNotice(noticeId) ? { 'background-color': '#F7DC6F' } : {}">
                         <div class="notice-official d-flex"
-                             v-if="notice.type == 'official'">
+                             v-if="getNoticeById(noticeId).type == 'official'">
                             <div class="notice-message">
                                 <i class="fas fa-bullhorn"></i>
-                                官方通知: {{ notice.content }}
+                                官方通知: {{ getNoticeById(noticeId).content }}
                             </div>
                         </div>
                         <div class="notice-post d-flex"
-                             v-if="notice.type == 'post'"
-                             @click="goArticle(notice.article)">
+                             v-if="getNoticeById(noticeId).type == 'post'"
+                             @click="goArticle(getNoticeById(noticeId).article)">
                             <div class="notice-message">
                                 <i class="fas fa-comments"></i>
-                                {{ getArticleById(notice.article).title }}
-                                {{ notice.content }}
+                                {{ getArticleById(getNoticeById(noticeId).article).title }}
+                                {{ getNoticeById(noticeId).content }}
                             </div>
                         </div>
                     </div>
@@ -159,6 +159,12 @@
                     <router-link 
                         class="dropdown-item" 
                         v-if="true"
+                        :to="{ name: 'user-notices' }">
+                    <i class="fas fa-bell"></i>
+                    所有通知</router-link>
+                    <router-link 
+                        class="dropdown-item" 
+                        v-if="true"
                         :to="{ name: 'user-settings' }">
                     <i class="fas fa-cog"></i>
                     個人設定</router-link>
@@ -178,8 +184,13 @@
 <main class="container">
 
     <router-view/>
-
-    {{ getNotReadNotices }}
+    <!-- {{ this.getCurrentUser.notices }}
+    <div v-for="(noticeId, index) in this.getCurrentUser.notices"
+         :key="index">
+        {{ getNoticeById(noticeId) }}
+    </div>
+    {{ getNotices }}
+    {{ getFilterNotices }} -->
 </main>
 
 <footer>
@@ -238,6 +249,10 @@ export default {
                 field: ''
             },
             inputWidth: '100px',
+            notices: {
+                size: 10,
+                readWait: 3000,
+            }
         }
     },
     created: function() {
@@ -260,13 +275,26 @@ export default {
             return app.$store.getters['articles/getDataById'](id)
         },
         getNotices: function() {
-            let id = this.getCurrentUser.id
-            return this.$store.getters['notices/getDataByUserId'](id)
+            return this.getCurrentUser.notices
+        },
+        getNoticeById: (app) => (noticeId) => {
+            return app.$store.getters['notices/getDataById'](noticeId)
+        },
+        isReadNotice: (app) => (noticeId) => {
+            let readUsers = app.getNoticeById(noticeId).readUsers
+            let userId = app.getCurrentUser.id
+            return readUsers.indexOf(userId) >= 0
         },
         getNotReadNotices: function() {
-            let id = this.getCurrentUser.id
-            return this.$store.getters['notices/getNotReadNoticesByUserId'](id)
-        }
+            let userId = this.getCurrentUser.id
+            let notices = this.getNotices
+            return notices.filter(noticeId => !this.isReadNotice(noticeId))
+        },
+        getFilterNotices: function() {
+            let notices = this.getNotices
+            let size = this.notices.size
+            return notices.slice(0, size)
+        },
     },
     methods: {
         goArticles: function(search) {
@@ -282,16 +310,19 @@ export default {
             })
         },
         readNotices: function() {
-            this.getNotices.forEach(notice => {
-                // if(notice.isRead)
-                //     return
+            let userId = this.getCurrentUser.id
+            let notices = this.getCurrentUser.notices
+            notices.forEach(noticeId => {
+                let notice = this.getNoticeById(noticeId)
 
-                // 延遲改isRead
+                // 已經讀過的 就直接跳過
+                if(this.isReadNotice(noticeId))
+                    return
+
                 setTimeout(() => {
-                    // notice.isRead = true
-                    notice.isRead = !notice.isRead
+                    notice.readUsers.push(userId)
                     this.$store.dispatch('notices/updateDataAction', notice)
-                }, 3000)
+                }, this.notices.readWait)
             })
         },
         widenInputWidth: function() {
@@ -473,6 +504,9 @@ $nav-text-hover-color: #FAF0E6;
                     padding-bottom: 5px;
                     padding-left: 5px;
                     
+                    &:last-child {
+                        border-bottom: 0px;
+                    }
                     &:hover {
                         background-color: #99A3A4;
 

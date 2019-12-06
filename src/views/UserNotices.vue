@@ -1,43 +1,53 @@
 <template>
 <div>
     <div class="d-flex justify-content-center"
-         v-if="!getPosts || getPosts.length <= 0">
+         v-if="!getNotices || getNotices.length <= 0">
         <div class="font-weight-bold">
             無資料
         </div>
     </div>
-    <div class="user-posts">
+    <div class="user-notices">
         <table class="table table table-hover">
-            <thead>
-                
-            </thead>
             <tbody>
-                <tr v-for="(post, index) in getPagePosts"
+                <tr v-for="(noticeId, index) in getPageNotices"
                     :key="index">
                     <td>
-                        <router-link :to="{ name: 'article', params: { id: post.article}}">
-                            {{ getArticleById(post.article).title }}
-                        </router-link>
+                        <span v-if="getNoticeById(noticeId).type == 'official'">
+                            <i class="fas fa-bullhorn"></i>
+                            官方通知
+                        </span>
+                        <span v-if="getNoticeById(noticeId).type == 'post'">
+                            <i class="fas fa-comments"></i>
+                            有新回覆
+                        </span>
                     </td>
                     <td>
-                        <i class="fa fa-thumbs-up fa-1x"></i>
-                        {{ post.pushs.length }}
+                        <span v-if="getNoticeById(noticeId).type == 'official'">
+                            {{ getNoticeById(noticeId).content }}
+                        </span>
+                        
+                        <span v-if="getNoticeById(noticeId).type == 'post'">
+                            <router-link :to="{ name: 'article', params: { id: getNoticeById(noticeId).article}}">
+                                {{ getArticleById(getNoticeById(noticeId).article).title }}
+                                {{ getNoticeById(noticeId).content }}
+                            </router-link>
+                        </span>
                     </td>
                     <td>
                         <i class="fa fa-clock fa-1x"></i>
-                        {{ dayjs(post.created.toMillis()).format('YYYY/MM/DD hh:mm') }}
+                        {{ dayjs(getNoticeById(noticeId).created.toMillis()).format('YYYY/MM/DD hh:mm') }}
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
     <div class="d-flex"
-         v-if="getPosts && getPosts.length > 0">
+         v-if="getNotices && getNotices.length > 0">
         <div class="pagination mx-auto">
             <Pagination 
             :currentPage="pagination.currentPage"
             :pagesize="pagination.pagesize"
-            :data="getPosts"
+            :data="getNotices"
             @change-page="changePage">
             </Pagination>
         </div>
@@ -73,20 +83,24 @@ export default {
         getCurrentUser: function() {
             return this.$store.getters['users/getCurrentUser'];
         },
-        getPosts: function() {
-            let id = this.$store.getters['users/getCurrentUser'].id
-            return this.$store.getters['posts/getPostsByUserId'](id)
+        getNotices: function() {
+            return this.getCurrentUser.notices
+            // let id = this.$store.getters['users/getCurrentUser'].id
+            // return this.$store.getters['notices/getDataByUserId'](id)
+        },
+        getNoticeById: (app) => (noticeId) => {
+            return app.$store.getters['notices/getDataById'](noticeId)
         },
         getArticleById: (app) => (id) => {
             return app.$store.getters['articles/getDataById'](id)
         },
-        getPagePosts: function() {
+        getPageNotices: function() {
             let currentPage = this.pagination.currentPage;
             let pagesize = this.pagination.pagesize;
             let startAt = pagesize * (currentPage - 1);
             let endAt = startAt + pagesize;
 
-            let data = this.getPosts || [];
+            let data = this.getNotices || [];
 
             return data.slice(startAt, endAt);
         }

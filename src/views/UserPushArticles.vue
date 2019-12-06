@@ -1,5 +1,11 @@
 <template>
 <div>
+    <div class="d-flex justify-content-center"
+         v-if="!getPushArticles || getPushArticles.length <= 0">
+        <div class="font-weight-bold">
+            無資料
+        </div>
+    </div>
     <div class="user-articles">
         <!-- {{ this.getCurrentUser.pushArticles }} -->
         <!-- {{ getPushArticles }} -->
@@ -26,7 +32,8 @@
                 </tr>
             </tbody>
         </table>
-        <div class="d-flex">
+        <div class="d-flex"
+             v-if="getPushArticles && getPushArticles.length > 0">
             <div class="pagination mx-auto">
                 <Pagination 
                 :currentPage="pagination.currentPage"

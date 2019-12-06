@@ -1,5 +1,11 @@
 <template>
 <div>
+    <div class="d-flex justify-content-center"
+         v-if="!getArticles || getArticles.length <= 0">
+        <div class="font-weight-bold">
+            無資料
+        </div>
+    </div>
     <div class="user-articles">
         <table class="table table table-hover">
             <thead>
@@ -24,7 +30,8 @@
                 </tr>
             </tbody>
         </table>
-        <div class="d-flex">
+        <div class="d-flex"
+             v-if="getArticles && getArticles.length > 0">
             <div class="pagination mx-auto">
                 <Pagination 
                 :currentPage="pagination.currentPage"

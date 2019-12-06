@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 // collection: firebase 的collection的名稱
 
-// user: user id
 // creator: user id 創建這個通知的是誰(誰回覆的，或官方帳戶)
 // article: article id
 // type: 
@@ -197,7 +196,6 @@ export default {
                     snapshot.forEach(doc => {
                         data.id = (Number(doc.data().id) + 1) || 0;
                         data.created = firebase.firestore.Timestamp.fromDate(new Date());
-
                         db.collection(state.collection).add(data);
 
                         // update data(更新state的資料)
