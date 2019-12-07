@@ -256,6 +256,11 @@ let countdownTimer = setInterval(() => {
 
 ### searchclear
 *  input 後面的清除按鈕( X圖案 )
+*  現在不用了，只要type="search"
+```
+// 這樣就好
+<input type="search">
+```
 ```
 .searchclear {
     position: absolute;

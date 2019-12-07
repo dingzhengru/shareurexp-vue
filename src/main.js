@@ -35,7 +35,7 @@ new Vue({
         // set auth
         this.$store.dispatch('auth/setAuthStateChanged')
         .then(() => {
-            console.log('user ready')
+            // console.log('user ready')
         })
 
         // set articles
@@ -58,7 +58,6 @@ new Vue({
     },
     created: function() {
         let userTimer = setInterval(() => {
-            console.log('update user')
 
             // check user ready 等待auth準備好
             if(!this.$store.state.auth.isReady)

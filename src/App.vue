@@ -1,6 +1,5 @@
 <template>
 <div id="app">
-
 <nav id="navbar" class="navbar navbar-expand-sm navbar-custom">
     <router-link to="/" class="navbar-brand">
         <img src="https://i.imgur.com/qz3f7tJ.png"
@@ -27,7 +26,6 @@
         </ul>
 
         <!-- Center -->
-
         <form class="form-inline articles-search"
               @submit.prevent="goArticles(articlesSearch)">
             <div class="input-group">
@@ -41,7 +39,7 @@
                         <option value="content">內容</option>
                     </select>
                 </div>
-                    <input type="text" 
+                    <input type="search" 
                        class="form-control" 
                        v-model="articlesSearch.text"
                        placeholder="搜尋文章"
@@ -49,15 +47,13 @@
                        @focus="widenInputWidth()"
                        @blur="narrowInputWidth()"
                        required>
-                <i class="searchclear fas fa-times-circle"
-                   @click="articlesSearch.text=''"
-                   v-if="articlesSearch.text"></i>
                 <div class="input-group-append">
                     <button type="submit" class="input-group-text" id="articles-search-button">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>
+
         </form>
 
         <!-- Right -->
@@ -173,7 +169,7 @@
                         class="dropdown-item" 
                         v-if="true"
                         to="/sign-out">
-                    <i class="fas sign-out-alt"></i>
+                    <i class="fas fa-sign-out-alt"></i>
                     登出</router-link>
                 </div>
             </li>
@@ -184,13 +180,6 @@
 <main class="container">
 
     <router-view/>
-    <!-- {{ this.getCurrentUser.notices }}
-    <div v-for="(noticeId, index) in this.getCurrentUser.notices"
-         :key="index">
-        {{ getNoticeById(noticeId) }}
-    </div>
-    {{ getNotices }}
-    {{ getFilterNotices }} -->
 </main>
 
 <footer>
@@ -359,8 +348,6 @@ export default {
                     this.$store.dispatch('auth/signInAction', user)
                     .then((result) => {
 
-                        console.log('登入成功:', result.user.email);
-
                         // 刪除密碼，另外創一個users的(自己創的collection)
                         delete user.password;
                         user.uid = result.user.uid;
@@ -377,16 +364,18 @@ export default {
                                 this.$store.commit('users/setCurrentUser', data);
                                 resolve(data)
                             })
+                            .catch(error => {
+                                reject(error)
+                            })
                         
 
                         // send Email
                         this.$store.dispatch('auth/sendEmailVerification', result.user)
                         .then(() => {
-                            console.log('send email:', result.user.email);
                             // this.message = '已發送驗證信件，請至信箱驗證'
                         })
                         .catch((error) => {
-                            console.log(error);
+                            reject(error)
                         })
                     })
                 })
@@ -439,18 +428,6 @@ $nav-text-hover-color: #FAF0E6;
         select.select-custom:focus {
             border-color: none;
             box-shadow: none;
-        }
-        .searchclear {
-            position: absolute;
-            right: 50px;
-            top: 0;
-            bottom: 0;
-            height: 14px;
-            margin: auto;
-            font-size: 14px;
-            cursor: pointer;
-            color: #ccc;
-            z-index: 99;
         }
     }
     .nav-item {

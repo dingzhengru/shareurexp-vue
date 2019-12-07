@@ -12,7 +12,7 @@ export default {
             this.$router.replace('/');
         })
         .catch(error => {
-            console.log(error);
+            // console.log(error);
         })
     }
 }

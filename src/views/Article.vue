@@ -49,7 +49,9 @@
                     <button class="btn-push btn btn-success btn-block btn-sm"
                             @click="pushArticle(getArticle)"
                             v-tippy="getPushTip(getArticle)"
-                            :class="{disabled: isPushed(getArticle) || isPushSelf(getArticle) }">
+                            :class="{disabled: !getCurrentUser ||
+                                               isPushed(getArticle) || 
+                                               isPushSelf(getArticle)  }">
                         <i class="fas fa-thumbs-up fa-2x"></i> 
                         <span class="push-length">
                             {{ getArticle.pushs.length }}
@@ -57,7 +59,8 @@
                     </button>    
                 </div>
                 <div class="col-12 col-sm-6 col-md-3 ml-auto"
-                     v-if="getCurrentUser.id == getArticle.creator">
+                     v-if="getCurrentUser && 
+                           getCurrentUser.id == getArticle.creator">
                     <button class="btn-edit btn btn-warning btn-block btn-sm"
                             @click="goArticleEdit(getArticle.id)">
                         <i class="fas fa-edit fa-2x"></i>
@@ -103,7 +106,7 @@
                         <button class="btn-push btn btn-success btn-block btn-sm"
                                 @click="pushPost(post)"
                                 v-tippy="getPushTip(post)"
-                                :class="{disabled: isPushed(post) || isPushSelf(post)}">
+                                :class="{disabled: !getCurrentUser || isPushed(post) || isPushSelf(post)}">
                             <i class="fas fa-thumbs-up fa-2x"></i>
                             <span class="push-length">
                                 {{ post.pushs.length }}
@@ -111,7 +114,8 @@
                         </button>
                     </div>
                     <div class="col-12 col-sm-6 col-md-3 ml-auto"
-                         v-if="getCurrentUser.id == post.creator">
+                         v-if="getCurrentUser &&
+                               getCurrentUser.id == post.creator">
                         <button class="btn-edit btn btn-warning btn-block btn-sm"
                                 @click="goPostEdit(post.id)">
                             <i class="fas fa-edit fa-2x"></i>
@@ -139,6 +143,11 @@ export default {
     data: function() {
         return {
             dayjs: dayjs,
+            notSignInTip: {
+                content: '請先登入',
+                arrow : true, 
+                trigger: 'mouseenter focus click'
+            },
             pushSlefTip : {
                 content: '不能自推',
                 arrow : true, 
@@ -193,7 +202,9 @@ export default {
             return item.creator == app.getCurrentUser.id
         },
         getPushTip: (app) => (item) => {
-            if(app.isPushSelf(item))
+            if(!app.getCurrentUser)
+                return app.notSignInTip
+            else if(app.isPushSelf(item))
                 return app.pushSlefTip
             else if(app.isPushed(item))
                 return app.pushedTip
@@ -234,14 +245,14 @@ export default {
             article.pushs.push(this.getCurrentUser.id)
             this.$store.dispatch('articles/updateDataAction', article)
             .then(data => {
-                console.log('push ok')
+                // console.log('push ok')
             })
 
             //加到 user 的 pushArticles
             this.getCurrentUser.pushArticles.push(article.id)
             this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
             .then(data => {
-                console.log('pushArticles ok')
+                // console.log('pushArticles ok')
             })
         },
         pushPost: function(post) {
@@ -253,14 +264,14 @@ export default {
             post.pushs.push(this.getCurrentUser.id)
             this.$store.dispatch('posts/updateDataAction', post)
             .then(data => {
-                console.log('push ok')
+                // console.log('push ok')
             })
 
             //加到 user 的 pushArticles
             this.getCurrentUser.pushPosts.push(post.id)
             this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
             .then(data => {
-                console.log('pushPosts ok')
+                // console.log('pushPosts ok')
             })
         },
         addIpViews: function() {
@@ -275,10 +286,10 @@ export default {
                     this.getArticle.ipViews.push(ip)
                     this.$store.dispatch('articles/updateDataAction', this.getArticle)
                     .then(data => {
-                        console.log('succcess', data)
+                        // console.log('succcess', data)
                     })
                 } else {
-                    console.log('already in ipViews')
+                    // console.log('already in ipViews')
                 }
             })
         }

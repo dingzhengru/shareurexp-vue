@@ -58,51 +58,49 @@ export default {
             let data = state.data || [];
             return data.find(item => item.id == id)
         },
+        getSearch: (state) => {
+            return state.search
+        },
+        getSort: (state) => {
+            return state.sort
+        },
+        getPage: (state) => {
+            return state.pagination
+        },
         getArticlesByUserId: (state) => (id) => {
             let data = state.data || [];
             return data.filter(item => item.creator == id)
         },
-        getSearchArticles: (state) => (users) => {
+        getArticlesBySchoolId: (state) => (id) => {
             let data = state.data || [];
-            let searchText = state.search.text;
-            let searchField = state.search.field;
-
-            if(searchField != 'creator') {
-                if(_.isEmpty(searchField))
-                    return data.filter((p) => {
-                        for(let x in p) {
-                            if(x == 'creator') {
-                                if(users[p[x]].username
-                                   .toLowerCase()
-                                   .includes(searchText.toLowerCase()))
-                                   return p;
-                            }
-                            if(String(p[x]).toLowerCase().includes(searchText.toLowerCase())) 
-                                return p;
-                        }
+            return data.filter(item => item.school == id)
+        },
+        getArticlesByTagId: (state) => (id) => {
+            let data = state.data || [];
+            return data.filter(item => {
+                        return item.tags.indexOf(id) >= 0
                     })
-                else {
-                    return data.filter((p) => {
-                        if(String(p[searchField]).toLowerCase().includes(searchText.toLowerCase())) 
-                            return p;
-                    })
-                }
-            }
-            return data.filter((p) => {
-                if(users[p[searchField]].username
-                   .toLowerCase()
-                   .includes(searchText.toLowerCase()))
-                   return p;
-            })
+        },
+        getPageArticles: (state) => (data) => {
+            let currentPage = state.pagination.currentPage;
+            let pagesize = state.pagination.pagesize;
+            let startAt = pagesize * (currentPage - 1);
+            let endAt = startAt + pagesize;
+            return data.slice(startAt, endAt);
         },
         getSortArticles: (state, getters) => (data) => {
             let field = state.sort.field;
             let isAsc = state.sort.isAsc;
 
+
             // 這邊以array的數量排序的
             if(field == 'posts' || 
                field == 'ipViews')
                 return data.sort(function (a, b) {
+                    // 如果一樣 就照創建時間排序(降序)
+                    if(a[field].length == b[field].length)
+                        return a['created'] < b['created'] ? 1 : -1;
+
                     if(isAsc)
                         return a[field].length > b[field].length ? 1 : -1;
                     else
@@ -115,35 +113,6 @@ export default {
                 else
                     return a[field] < b[field] ? 1 : -1;
             });
-        },
-        getArticlesFilter: (state, getters) => (users) => {
-            // users => {... username: ''}
-            // users 是為了查 username的
-
-            // page
-            let currentPage = state.pagination.currentPage;
-            let pagesize = state.pagination.pagesize;
-            let startAt = pagesize * (currentPage - 1);
-            let endAt = startAt + pagesize;
-
-            // search
-            let searchText = state.search.text;
-            let searchField = state.search.field;
-
-            // sort
-            let field = state.sort.field;
-            let isAsc = state.sort.isAsc;
-
-            // search => sort => page
-            let data = getters.getSearchArticles(users) || [];
-
-            // sort
-            data = getters.getSortArticles(data);
-
-            // page
-            data = data.slice(startAt, endAt);
-
-            return data
         },
         getSortData: (state) => {
             let data = state.data || [];
@@ -242,19 +211,15 @@ export default {
             state.sort = payload;
         },
         setSearch(state, payload) {
-            console.log('setSearch', payload);
             state.search = payload;
         },
         setPage(state, payload) {
-            console.log('setPage', payload);
             state.pagination = payload;
         },
         setSearchText(state, payload) {
-            console.log('setSearchText', payload);
             state.search.text = payload;
         },
         setSearchField(state, payload) {
-            console.log('setSearchField', payload);
             state.search.field = payload;
         },
     },
@@ -267,7 +232,6 @@ export default {
             });
         },
         getDataAction({ state, commit }, payload) {
-            console.log('getDataAction');
 
             // state.data 固定用id排序，不要去動到他本身
 
@@ -286,7 +250,6 @@ export default {
             })
         },
         addDataAction({ state, commit, dispatch }, payload) {
-            console.log('addDataAction');
 
             let data = payload;
 
@@ -314,7 +277,6 @@ export default {
             })
         },
         removeDataAction({ state, commit, dispatch }, payload) {
-            console.log('removeDataAction');
 
             let data = payload;
 
@@ -336,7 +298,6 @@ export default {
             })
         },
         updateDataAction({ state, commit, dispatch }, payload) {
-            console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;

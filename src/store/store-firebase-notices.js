@@ -163,7 +163,6 @@ export default {
             });
         },
         getDataAction({ state, commit }, payload) {
-            console.log('getDataAction');
 
             // state.data 固定用id排序，不要去動到他本身
 
@@ -182,7 +181,6 @@ export default {
             })
         },
         addDataAction({ state, commit, dispatch  }, payload) {
-            console.log('addDataAction');
 
             let data = payload;
 
@@ -205,13 +203,11 @@ export default {
                     })
                 })
                 .catch(error => {
-                    console.error(error.message);
                     reject(error.message);
                 })
             })
         },
         removeDataAction({ state, commit, dispatch }, payload) {
-            console.log('removeDataAction');
 
             let data = payload;
             
@@ -233,7 +229,6 @@ export default {
             })
         },
         updateDataAction({ state, commit, dispatch }, payload) {
-            console.log('updateDataAction');
 
             let data = payload;
 

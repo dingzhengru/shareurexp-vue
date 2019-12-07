@@ -39,7 +39,6 @@ export default {
     },
     actions: {
         setAuthStateChanged({ commit }, payload) {
-            console.log('setAuthStateChanged')
             return new Promise((resolve, reject) => {
                 firebase.auth().onAuthStateChanged(user => {
 
@@ -58,7 +57,6 @@ export default {
             });
         },
         signUpAction({ commit }, payload) {
-            console.log('signUpAction');
 
             let email = payload.email;
             let password = payload.password;
@@ -74,7 +72,6 @@ export default {
             })
         },
         signInAction({ commit }, payload) {
-            console.log('signInAction');
 
             let email = payload.email;
             let password = payload.password;
@@ -97,7 +94,6 @@ export default {
             });
         },
         signOutAction({ commit }, payload) {
-            console.log('signOutAction');
             return new Promise((resolve, reject) => {
                 firebase.auth().signOut().then(() => {
                     commit('setIsSignIn', false);
@@ -108,7 +104,6 @@ export default {
             });
         },
         sendEmailVerification({ state }, payload) {
-            console.log('sendEmailVerification');
 
             // this user is auth user
             let user = state.data || payload;

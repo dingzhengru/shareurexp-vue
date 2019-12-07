@@ -167,7 +167,7 @@ export default {
                 resetUploader();
             })
             .catch(err => {
-                console.log(err);
+                // console.log(err);
             });
         }
     }

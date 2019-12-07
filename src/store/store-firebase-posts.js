@@ -159,7 +159,6 @@ export default {
             });
         },
         getDataAction({ state, commit }, payload) {
-            console.log('getDataAction');
 
             // state.data 固定用id排序，不要去動到他本身
 
@@ -178,7 +177,6 @@ export default {
             })
         },
         addDataAction({ state, commit, dispatch }, payload) {
-            console.log('addDataAction');
 
             let data = payload;
 
@@ -206,7 +204,6 @@ export default {
             })
         },
         removeDataAction({ state, commit, dispatch }, payload) {
-            console.log('removeDataAction');
 
             let data = payload;
 
@@ -228,7 +225,6 @@ export default {
             })
         },
         updateDataAction({ state, commit, dispatch }, payload) {
-            console.log('updateDataAction');
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;

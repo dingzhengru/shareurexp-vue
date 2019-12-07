@@ -172,12 +172,158 @@ export default {
         getArticles: function() {
             return this.$store.getters['articles/getData'];
         },
-        getSearchArticles: function() {
-            return this.$store.getters['articles/getSearchData'];
+        getUsers: function() {
+            return this.$store.getters['users/getData'];
         },
-        getArticlesFilter: function() {
-            let users = this.$store.getters['users/getData'];
-            return this.$store.getters['articles/getArticlesFilter'](users)
+        getSchools: function() {
+            return this.$store.getters['schools/getData'];
+        },
+        getTags: function() {
+            return this.$store.getters['tags/getData'];
+        },
+        getArticlesSearch: function() {
+            return this.$store.getters['articles/getSearch'];
+        },
+        getSearchArticlesByTitle: function(){
+            let articles = this.getArticles
+
+            let searchText = this.getArticlesSearch.text
+            let searchField = this.getArticlesSearch.field
+
+            let filterArticles = []
+
+            filterArticles = articles.filter(article => {
+                return article.title
+                       .toLowerCase()
+                       .includes(searchText.toLowerCase())
+            })
+            return filterArticles
+        },
+        getSearchArticlesByContent: function(){
+            let articles = this.getArticles
+
+            let searchText = this.getArticlesSearch.text
+            let searchField = this.getArticlesSearch.field
+
+            let filterArticles = []
+
+            filterArticles = articles.filter(article => {
+                return article.content
+                       .toLowerCase()
+                       .includes(searchText.toLowerCase())
+            })
+            return filterArticles
+        },
+        getSearchArticlesByCreator: function(){
+            let articles = this.getArticles
+            let users = this.getUsers
+
+            let searchText = this.getArticlesSearch.text
+            let searchField = this.getArticlesSearch.field
+
+            let filterArticles = []
+            let filterUsers = []
+
+            filterUsers = users.filter(user => {
+                return user.username
+                       .toLowerCase()
+                       .includes(searchText.toLowerCase())
+            })
+            filterArticles = filterUsers.flatMap(user => {
+                return this.$store.getters['articles/getArticlesByUserId'](user.id)
+            })
+            return filterArticles
+        },
+        getSearchArticlesByTags: function(){
+            let articles = this.getArticles
+            let schools = this.getSchools
+            let tags = this.getTags
+
+            let searchText = this.getArticlesSearch.text
+            let searchField = this.getArticlesSearch.field
+
+            let filterArticles = []
+            let filterSchools = []
+            let filterTags = []
+
+            // schools
+            filterSchools = schools.filter(school => {
+                return school.name
+                       .toLowerCase()
+                       .includes(searchText.toLowerCase())
+            })
+            filterSchools = filterSchools.flatMap(school => {
+                return this.$store.getters['articles/getArticlesBySchoolId'](school.id)
+            })
+
+            // tags
+            filterTags = tags.filter(tag => {
+                return tag.name
+                       .toLowerCase()
+                       .includes(searchText.toLowerCase())
+            })
+            filterTags = filterTags.flatMap(tag => {
+                return this.$store.getters['articles/getArticlesByTagId'](tag.id)
+            })
+            filterArticles = filterArticles
+                            .concat(filterSchools)
+                            .concat(filterTags)
+                            .filter((item, index, self) => self.indexOf(item) == index)
+
+            return filterArticles
+        },
+        getSearchArticles: function() {
+            
+            let searchText = this.getArticlesSearch.text
+            let searchField = this.getArticlesSearch.field
+            let articles = this.getArticles
+
+            let filterArticles = []
+
+            try {
+                if(!searchField) {
+                    // search all 只要任何一個有包含 就回傳true
+                    filterArticles = articles.filter(article => {
+                        if(this.getSearchArticlesByCreator.indexOf(article) >= 0)
+                            return true
+                        if(this.getSearchArticlesByTags.indexOf(article) >= 0)
+                            return true
+                        if(this.getSearchArticlesByTitle.indexOf(article) >= 0)
+                            return true
+                        if(this.getSearchArticlesByContent.indexOf(article) >= 0)
+                            return true
+                        return false
+                    })
+
+                } else if(searchField == 'creator') {
+                    filterArticles = this.getSearchArticlesByCreator
+                } else if(searchField == 'tags') {
+                    filterArticles = this.getSearchArticlesByTags
+                } else if(searchField == 'title') {
+                    filterArticles = this.getSearchArticlesByTitle
+                } else if(searchField == 'content') {
+                    filterArticles = this.getSearchArticlesByContent
+                }
+            } catch {
+                return articles
+            }
+            return filterArticles
+        },
+        getArticlesFilter: function() { 
+            let articles = this.getArticles
+
+            let data = []
+
+            // search => sort => page
+            try {
+                data = this.getSearchArticles
+                data = this.$store.getters['articles/getSortArticles'](data)
+                data = this.$store.getters['articles/getPageArticles'](data)
+                // data = data.slice(startAt, endAt)
+            } catch {
+                return articles
+            }
+            return data
         },
         getUser: (app) => (id) => {
             return app.$store.getters['users/getDataById'](id)
@@ -207,7 +353,7 @@ export default {
         reloadArticles: function() {
             this.$store.dispatch('articles/getDataAction')
             .then((data) => {
-                console.log('reload.')
+                // console.log('reload.')
             })
         },
         changeShowmode: function(showmode) {

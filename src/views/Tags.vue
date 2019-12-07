@@ -2,7 +2,7 @@
 <div>
     <div class="tags-search">
         <div class="row tags-search-row">
-            <div class="col-8">
+            <div class="col-12">
                 <div class="input-group flex-nowrap">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="addon-wrapping">
@@ -12,7 +12,7 @@
                     <input type="text" 
                            class="form-control" 
                            v-model="search.text"
-                           placeholder="搜尋標籤" 
+                           placeholder="搜尋標籤 (點選標籤可以直接搜尋文章)" 
                            aria-describedby="addon-wrapping"
                     />
                 </div>
@@ -27,12 +27,18 @@
                   v-for="school in getSchools"
                   :key="school.name">
                 {{ school.name }}
+                <span class="tag-len">
+                    {{ getArticlesBySchoolId(school.id).length }}
+                </span>
             </span>
             <span class="badge badge-info"
                   @click="goArticlesByTag(school.name)"
                   v-for="tag in getTags"
                   :key="tag.name">
                 {{ tag.name }}
+                <span class="tag-len">
+                    {{ getArticlesByTagId(tag.id).length }}
+                </span>
             </span>
         </div>
     </div>
@@ -43,9 +49,6 @@
 <script>
 
 import { db } from '../firebase.js'
-
-// 先把store.users以id排序(因users不能刪除，所以id順序能剛好對應)
-// users[id] 就會剛好是對應的user
 
 
 export default {
@@ -66,6 +69,15 @@ export default {
         },
         getTags: function() {
             return this.$store.getters['tags/getSearchData'];
+        },
+        getArticles: function() {
+            return this.$store.getters['articles/getData'];
+        },
+        getArticlesBySchoolId: (app) => (id) => {
+            return app.$store.getters['articles/getArticlesBySchoolId'](id);
+        },
+        getArticlesByTagId: (app) => (id) => {
+            return app.$store.getters['articles/getArticlesByTagId'](id);
         }
     },
     methods: {
@@ -95,12 +107,25 @@ export default {
 .tags {
     .tag-div{
         padding-bottom: 25px;
+        
 
         span {
             font-size: 1.5rem;
             padding-bottom: 10px;
             margin-right: 5px;
             margin-bottom: 10px;
+            cursor: pointer;
+
+            &:hover {
+                color: black;
+            }
+        }
+        span.tag-len {
+            background-color: #E74C3C;
+            padding-bottom: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            border-radius: 4px;
         }
     }
 }

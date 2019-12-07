@@ -170,7 +170,6 @@ export default {
                 this.success = `已送出重置密碼的信件`
             })
             .catch(error => {
-                console.log(error)
                 this.error = error
             })
         }

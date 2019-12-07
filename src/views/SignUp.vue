@@ -68,7 +68,7 @@ export default {
                 this.$store.dispatch('auth/signInAction', user)
                 .then((result) => {
 
-                    console.log('登入成功:', result.user.email);
+                    // console.log('登入成功:', result.user.email);
 
                     // 刪除密碼，另外創一個users的(自己創的collection)
                     delete user.password;
