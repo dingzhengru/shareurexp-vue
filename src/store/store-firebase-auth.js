@@ -21,6 +21,9 @@ export default {
         },
         getIsSignIn(state) {
             return state.isSignIn;
+        },
+        getEmailVerified(state) {
+            return state.data.emailVerified
         }
     },
     mutations: {
@@ -113,7 +116,7 @@ export default {
                 .then(() => {
                     resolve();
                 }).catch(error => {
-                    reject(error.message);
+                    reject(error);
                 });
             });
         },

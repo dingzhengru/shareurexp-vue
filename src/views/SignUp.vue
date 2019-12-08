@@ -64,43 +64,39 @@ export default {
             .then((result) => {
                 this.success = '註冊成功'
 
-                // Sign in
-                this.$store.dispatch('auth/signInAction', user)
-                .then((result) => {
+                // 註冊會自動登入
 
-                    // console.log('登入成功:', result.user.email);
+                // console.log('登入成功:', result.user.email);
 
-                    // 刪除密碼，另外創一個users的(自己創的collection)
-                    delete user.password;
-                    user.uid = result.user.uid;
-                    user.pushs = [];
-                    user.images = [];
-                    user.settings = {
-                        pagesize: 5,
-                        showmode: 'page'
-                    }
-                    this.$store
-                        .dispatch('users/addDataAction', user)
-                        .then(data => {
-                            this.$store.commit('users/setCurrentUser', data);
-                        })
-                    // set current user to store.users
-                    
+                // 刪除密碼，另外創一個users的(自己創的collection)
+                // delete user.password;
+                // user.uid = result.user.uid;
+                // user.pushs = [];
+                // user.images = [];
+                // user.settings = {
+                //     pagesize: 5,
+                //     showmode: 'page'
+                // }
+                // this.$store
+                //     .dispatch('users/addDataAction', user)
+                //     .then(data => {
+                //         this.$store.commit('users/setCurrentUser', data);
+                //     })
+                // set current user to store.users
+                
 
 
-                    // send Email
-                    // this.$store.dispatch('auth/sendEmailVerification', result.user)
-                    // .then(() => {
-                    //     console.log('send email:', result.user.email);
-                    //     this.message = '已發送驗證信件，請至信箱驗證'
-                    // })
-                    // .catch((error) => {
-                    //     console.log(error);
-                    // })
-                })
+                // send Email
+                // this.$store.dispatch('auth/sendEmailVerification', result.user)
+                // .then(() => {
+                //     console.log('send email:', result.user.email);
+                //     this.message = '已發送驗證信件，請至信箱驗證'
+                // })
+                // .catch((error) => {
+                //     console.log(error);
+                // })
             })
             .catch((error) => {
-                this.error = error;
                 console.error(error);
             })
         }

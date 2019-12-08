@@ -12,13 +12,34 @@
                     <span class="user-id mr-3">
                         ID：{{ getCurrentUser.id }}
                     </span>
-                    <span class="user-id mr-3">
+                    <span class="user-email mr-3">
                         <i class="fas fa-envelope"></i>
                         {{ getCurrentUser.email }}
+                        <span v-if="!getEmailVerified">
+                            (未驗證) 
+                            <button class="btn btn-warning btn-sm mr-1"
+                                    @click="sendEmailVerification()">
+                                驗證
+                            </button>
+                            <span class="alert alert-success"
+                                  v-if="emailMsg">
+                                {{ emailMsg }}
+                            </span>
+                            <span class="alert alert-danger"
+                                  v-if="emailError">
+                                {{ emailError }}
+                            </span>
+                        </span>
+                        
                     </span>
                     <span class="user-created">
                         <i class="fas fa-user-plus"></i>
                         {{ dayjs(getCurrentUser.created.toMillis()).format('YYYY/MM/DD') }}
+                    </span>
+                </div>
+                <div>
+                    <span class="mr-3">
+                        
                     </span>
                 </div>
             </div>
@@ -72,6 +93,8 @@ export default {
     data: function() {
         return {
             dayjs: dayjs,
+            emailMsg: '',
+            emailError: ''
         }
     },
     created: function() {
@@ -81,6 +104,28 @@ export default {
         getCurrentUser: function() {
             return this.$store.getters['users/getCurrentUser'];
         },
+        getAuthUser: function() {
+            return this.$store.getters['auth/getCurrentUser'];
+        },
+        getEmailVerified: function() {
+            return this.$store.getters['auth/getEmailVerified']
+        }
+    },
+    methods: {
+        sendEmailVerification: function() {
+            let user = this.getAuthUser
+            this.emailMsg = ''
+            this.emailError = ''
+            
+            this.$store.dispatch('auth/sendEmailVerification', user)
+            .then(() => {
+                this.emailMsg = '已發送'
+            })
+            .catch((error) => {
+                if(error.code == 'auth/too-many-requests')
+                    this.emailError = '才剛送過一封，請稍號再試'
+            })
+        }
     }
 }
 </script>
@@ -101,6 +146,12 @@ $sidebar-text-color: #1d525f;
     }
     .user-id {
 
+    }
+    .user-email {
+        .alert {
+            padding: 8px;
+            font-size: 0.8rem;
+        }
     }
     .user-created {
 

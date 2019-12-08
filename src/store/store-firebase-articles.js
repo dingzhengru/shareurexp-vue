@@ -263,12 +263,12 @@ export default {
                         data.editDate = data.created;
                         data.latestPostDate = data.created;
 
-                        db.collection(state.collection).add(data);
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(data);
+                        db.collection(state.collection).add(data)
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {
@@ -284,12 +284,12 @@ export default {
                 db.collection(state.collection).where('id', '==', data.id).get()
                 .then(snapshot => {
                     snapshot.forEach((doc) => {
-                        doc.ref.delete();
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(data);
+                        doc.ref.delete()
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {
@@ -301,7 +301,7 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;
-            
+
             return new Promise((resolve, reject) => {
                 db.collection(state.collection)
                 .where('id', '==', data.id).get()
@@ -309,19 +309,19 @@ export default {
                     snapshot.forEach((doc) => {
                         // title, content, school, tags 改變時才改變編輯時間
                         // array, object比較 用_.isEqual()
-                        let data = doc.data()
-                        if(data.title != data.title || 
-                           data.content != data.content || 
-                           data.school != data.school ||
-                           !_.isEqual(data.tags, data.tags))
+                        let docData = doc.data()
+                        if(docData.title != docData.title || 
+                           docData.content != docData.content || 
+                           docData.school != docData.school ||
+                           !_.isEqual(docData.tags, docData.tags))
                             data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
                         
                         doc.ref.update(data)
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-                        
-                        resolve(data);
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {

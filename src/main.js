@@ -62,6 +62,7 @@ new Vue({
             // check user ready 等待auth準備好
             if(!this.$store.state.auth.isReady)
                 return
+
             // check sign in 確定沒登入就結束
             if(!this.$store.state.auth.isSignIn) {
                 this.$store.commit('users/setCurrentUser', null);
@@ -69,11 +70,13 @@ new Vue({
                 return
             }
                 
+
             // 用auth uid去找 user 並設置 currentUser
             let uid = this.$store.getters['auth/getData'].uid || null;
             this.$store
                 .dispatch('users/getUserByUid', uid)
                 .then(data => {
+
                     // set Current user
                     this.$store.commit('users/setCurrentUser', data);
 

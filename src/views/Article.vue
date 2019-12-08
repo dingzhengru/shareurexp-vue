@@ -1,5 +1,6 @@
 <template>
 <div id="wrapper">
+    {{ getArticle.posts }}
     <div class="article">
         <div class="article-head">
             <div class="row article-title-row">
@@ -43,29 +44,34 @@
                 </div>
             </div>
         </div>
-        <div class="article-bottom">
-            <div class="row">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <button class="btn-push btn btn-success btn-block btn-sm"
-                            @click="pushArticle(getArticle)"
-                            v-tippy="getPushTip(getArticle)"
-                            :class="{disabled: !getCurrentUser ||
-                                               isPushed(getArticle) || 
-                                               isPushSelf(getArticle)  }">
-                        <i class="fas fa-thumbs-up fa-2x"></i> 
-                        <span class="push-length">
-                            {{ getArticle.pushs.length }}
-                        </span>
-                    </button>    
-                </div>
-                <div class="col-12 col-sm-6 col-md-3 ml-auto"
-                     v-if="getCurrentUser && 
-                           getCurrentUser.id == getArticle.creator">
-                    <button class="btn-edit btn btn-warning btn-block btn-sm"
-                            @click="goArticleEdit(getArticle.id)">
-                        <i class="fas fa-edit fa-2x"></i>
-                    </button>
-                </div>
+        <div class="article-bottom d-flex">
+            <div class="mr-auto">
+                <button class="btn-push btn btn-success btn-block"
+                        @click="pushArticle(getArticle)"
+                        v-tippy="getPushTip(getArticle)"
+                        :class="{disabled: !getCurrentUser ||
+                                           isPushed(getArticle) || 
+                                           isPushSelf(getArticle)  }">
+                    <i class="fas fa-thumbs-up"></i> 
+                    <span class="push-length">
+                        {{ getArticle.pushs.length }}
+                    </span>
+                </button>
+            </div>
+            <div class="mr-2"
+                 v-if="getCurrentUser && 
+                       getCurrentUser.id == getArticle.creator">
+                <button class="btn-edit btn btn-warning btn-block"
+                        @click="goArticleEdit(getArticle.id)">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+            <div v-if="getCurrentUser && 
+                       getCurrentUser.id == getArticle.creator">
+                <button class="btn-remove btn btn-danger btn-block"
+                        @click="removeArticle(getArticle)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -100,8 +106,35 @@
                     </div>
                 </div>
             </div>
-            <div class="post-bottom">
-                <div class="row post-edit">
+            <div class="post-bottom d-flex">
+                <div class="mr-auto">
+                    <button class="btn-push btn btn-success btn-block"
+                            @click="pushPost(post)"
+                            v-tippy="getPushTip(post)"
+                            :class="{disabled: !getCurrentUser || isPushed(post) || isPushSelf(post)}">
+                        <i class="fas fa-thumbs-up"></i> 
+                        <span class="push-length">
+                            {{ getArticle.pushs.length }}
+                        </span>
+                    </button>
+                </div>
+                <div class="mr-2"
+                     v-if="getCurrentUser &&
+                           getCurrentUser.id == post.creator">
+                    <button class="btn-edit btn btn-warning btn-block"
+                            @click="goPostEdit(post.id)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div v-if="getCurrentUser &&
+                           getCurrentUser.id == post.creator">
+                    <button class="btn-remove btn btn-danger btn-block"
+                            @click="removePost(post)">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+
+                <!-- <div class="row post-edit">
                     <div class="col-12 col-sm-6 col-md-3">
                         <button class="btn-push btn btn-success btn-block btn-sm"
                                 @click="pushPost(post)"
@@ -121,7 +154,7 @@
                             <i class="fas fa-edit fa-2x"></i>
                         </button>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -292,6 +325,45 @@ export default {
                     // console.log('already in ipViews')
                 }
             })
+        },
+        removeArticle: function(article) {
+            // 兩種刪除方式
+            // 1. 是直接從article.posts刪除
+            // 2. 是從全部的post找誰的article.id是吻合的
+
+            // 因為刪除就找不到了，所以先深拷貝
+            let posts = _.cloneDeep(this.getPosts)
+
+
+            let isRemove = confirm('確定刪除此文章嗎?')
+            if(isRemove) {
+                // getPosts 已經是從article篩選過的了
+                // 不是全部的posts，但以防萬一，還是設個條件
+                
+                this.$store.dispatch('articles/removeDataAction', this.getArticle)
+                .then(data => {
+                    let articleId = data.id
+                    posts.forEach(post => {
+                        if(post.article == articleId) {
+                            this.$store.dispatch('posts/removeDataAction', post)
+                        }
+                    })
+
+                    this.$router.replace({ name:'articles' })
+                })
+            }
+        },
+        removePost: function(post) {
+            let isRemove = confirm('確定刪除此文章嗎?')
+
+            if(!isRemove) 
+                return
+            this.$store.dispatch('posts/removeDataAction', post)
+            .then(data => {
+                let index = this.getArticle.posts.indexOf(data.id);
+                if (index !== -1) 
+                    this.getArticle.posts.splice(index, 1);
+            })
         }
     }
 }
@@ -334,7 +406,7 @@ div.article {
             
         }
         .push-length {
-            font-size: 1.25rem;
+            
         }
         .btn-edit {
 
@@ -360,7 +432,7 @@ div.post {
 
         }
         .push-length {
-            font-size: 1.25rem;
+
         }
         .btn-edit {
 

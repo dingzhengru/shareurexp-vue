@@ -31,7 +31,8 @@ avatarColors = [
     pushArticles: [],
     pushPosts: [],
     images: [],
-    avatarColor: '#CD6155'
+    avatarColor: '#CD6155',
+    notices: [],
     settings: {
         pagesize: 5,
         showmode: 'page'
@@ -233,7 +234,10 @@ export default {
         },
         addDataAction({ state, commit, dispatch }, payload) {
 
-            let user = payload;
+            let data = payload;
+
+            if(data.password)
+                delete data.password
 
             let avatarColors = [
                 '#EC7063', '#A569BD', '#5DADE2', '#45B39D', '#58D68D', 
@@ -248,20 +252,26 @@ export default {
                 .get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
-                        user.id = (Number(doc.data().id) + 1) || 0;
-                        user.created = firebase.firestore.Timestamp.fromDate(new Date());
-                        user.editDate = user.created;
-                        user.pushArticles = [];
-                        user.pushPosts = [];
-                        user.images = [];
-                        user.avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)]
+                        data.id = (Number(doc.data().id) + 1) || 0;
+                        data.created = firebase.firestore.Timestamp.fromDate(new Date());
+                        data.editDate = data.created;
+                        data.pushs = [];
+                        data.pushArticles = [];
+                        data.pushPosts = [];
+                        data.images = [];
+                        data.notices = [];
+                        data.settings = {
+                            pagesize: 5,
+                            showmode: 'page'
+                        }
+                        data.avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)]
 
-                        db.collection(state.collection).add(user);
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(user);
+                        db.collection(state.collection).add(data)
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {
@@ -271,19 +281,19 @@ export default {
         },
         removeDataAction({ state, commit, dispatch }, payload) {
 
-            let user = payload;
-            user.editDate = new firebase.firestore.Timestamp.fromDate(new Date());
+            let data = payload;
+            data.editDate = new firebase.firestore.Timestamp.fromDate(new Date());
             
             return new Promise((resolve, reject) => {
-                db.collection(state.collection).where('id', '==', user.id).get()
+                db.collection(state.collection).where('id', '==', data.id).get()
                 .then(snapshot => {
                     snapshot.forEach((doc) => {
-                        doc.ref.delete();
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(user);
+                        doc.ref.delete()
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {
@@ -294,18 +304,20 @@ export default {
         updateDataAction({ state, commit, dispatch }, payload) {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
-            let user = payload;
-            user.editDate = new Date(Date.now());
+            let data = payload;
+            data.editDate = new Date(Date.now());
 
             return new Promise((resolve, reject) => {
                 db.collection(state.collection)
-                .where('id', '==', user.id).get()
+                .where('id', '==', data.id).get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
-                        doc.ref.update(user);
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-                        resolve(user);
+                        doc.ref.update(data)
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch(error => {

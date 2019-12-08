@@ -81,7 +81,7 @@
             </li>
             <!-- 登入後顯示 -->
             <li class="nav-item post-add-link"
-                v-if="this.$route.name == 'article'">
+                v-if="this.getCurrentUser && this.$route.name == 'article'">
                 <router-link 
                     class="nav-link"
                     :to="{ name: 'post-add',
@@ -90,7 +90,7 @@
                 </router-link>
             </li>
             <li class="nav-item"
-                v-show="this.$route.name != 'article' && getCurrentUser">
+                v-show="getCurrentUser && this.$route.name != 'article'">
                 <router-link class="nav-link" to="/articles/add">
                     <i class="fas fa-edit"></i>
                 </router-link>
@@ -342,41 +342,29 @@ export default {
         signUp: function(user) {
             return new Promise ((resolve, reject) => {
                 this.$store.dispatch('auth/signUpAction', user)
-                .then((result) => {
+                .then(result => {
+                    // 註冊會自動登入
 
-                    // Sign in
-                    this.$store.dispatch('auth/signInAction', user)
-                    .then((result) => {
+                    // 刪除密碼，另外創一個users的(自己創的collection)
+                    delete user.password;
+                    user.uid = result.user.uid;
 
-                        // 刪除密碼，另外創一個users的(自己創的collection)
-                        delete user.password;
-                        user.uid = result.user.uid;
-                        user.pushs = [];
-                        user.images = [];
-                        user.settings = {
-                            pagesize: 5,
-                            showmode: 'page'
-                        }
-                        // set current user to store.users
-                        this.$store
-                            .dispatch('users/addDataAction', user)
-                            .then(data => {
-                                this.$store.commit('users/setCurrentUser', data);
-                                resolve(data)
-                            })
-                            .catch(error => {
-                                reject(error)
-                            })
+                    // set current user to store.users
+                    this.$store
+                        .dispatch('users/addDataAction', user)
+                        .then(data => {
+                            this.$store.commit('users/setCurrentUser', data);
+                            resolve(data)
+                        })
                         
 
-                        // send Email
-                        this.$store.dispatch('auth/sendEmailVerification', result.user)
-                        .then(() => {
-                            // this.message = '已發送驗證信件，請至信箱驗證'
-                        })
-                        .catch((error) => {
-                            reject(error)
-                        })
+                    // send Email
+                    this.$store.dispatch('auth/sendEmailVerification', result.user)
+                    .then(() => {
+                        // this.message = '已發送驗證信件，請至信箱驗證'
+                    })
+                    .catch((error) => {
+                        reject(error)
                     })
                 })
                 .catch((error) => {

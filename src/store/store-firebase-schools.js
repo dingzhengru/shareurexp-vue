@@ -167,12 +167,12 @@ export default {
                         data.id = (Number(doc.data().id) + 1) || 0;
                         data.created = firebase.firestore.Timestamp.fromDate(new Date());
 
-                        db.collection(state.collection).add(data);
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(data);
+                        db.collection(state.collection).add(data)
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch((error) => {
@@ -188,12 +188,12 @@ export default {
                 db.collection(state.collection).where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.delete();
-
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-
-                        resolve(data);
+                        doc.ref.delete()
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch((error) => {
@@ -211,10 +211,12 @@ export default {
                 .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
-                        doc.ref.update(data);
-                        // update data(更新state的資料)
-                        dispatch('getDataAction');
-                        resolve(data);
+                        doc.ref.update(data)
+                        .then(() => {
+                            // update data(更新state的資料)
+                            dispatch('getDataAction');
+                            resolve(data);
+                        })
                     })
                 })
                 .catch((error) => {

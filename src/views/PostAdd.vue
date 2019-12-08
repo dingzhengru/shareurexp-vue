@@ -119,7 +119,10 @@ export default {
         addArticlePosts: function(post) {
             this.getArticle.posts.push(post.id)
             this.getArticle.latestPostDate = post.created
-            this.$store.dispatch('articles/updateDataAction', this.getArticle);
+            this.$store.dispatch('articles/updateDataAction', this.getArticle)
+            .then((data) => {
+                // console.log(data.posts)
+            })
         },
         addNotice: function(post) {
             let notice = {
