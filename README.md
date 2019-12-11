@@ -1,6 +1,7 @@
 # shareurexp-vue(demo project)
 
 *  <a href="#project-setup">Project setup</a>
+*  <a href="#connect-history-api-fallback">connect-history-api-fallback</a>
 *  <a href="#store-firebase">store-firebase</a>
 *  <a href="#my-computed">my-computed</a>
     *  <a href="#authIsReady">authIsReady</a>
@@ -48,6 +49,31 @@
 
 ### Lints and fixes files
 ```npm run lint```  
+
+## connect-history-api-fallback
+*  用於讓express server 實現前端 router 的 history mode
+*  不使用的話，非首頁重整就會get不到網頁
+```
+const history = require('connect-history-api-fallback');
+app.use(history());
+```
+
+## express-server.js
+*  執行 build 過後的 production 版本的server
+```
+const port = process.env.PORT || 80
+
+const express = require('express') 
+const history = require('connect-history-api-fallback');
+
+const app = express() 
+
+app.use(history());
+
+app.use(express.static('dist'))
+
+app.listen(port, () => console.log(`Listening on port ${port}`))
+```
 
 ## firebase
 *  firebase.js 引入firebase並export給其他檔案用的
