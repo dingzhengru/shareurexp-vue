@@ -228,13 +228,16 @@ export default {
             // 這裡不使用 dispatch('getDataAction') 更新，避免執行太多次
 
             let data = payload;
-            data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
 
             return new Promise((resolve, reject) => {
                 db.collection(state.collection)
                 .where('id', '==', data.id).get()
                 .then((snapshot) => {
                     snapshot.forEach((doc) => {
+                        let docData = doc.data()
+                        if(docData.content != docData.content)
+                            data.editDate = firebase.firestore.Timestamp.fromDate(new Date())
+
                         doc.ref.update(data)
                         .then(() => {
                             // update data(更新state的資料)

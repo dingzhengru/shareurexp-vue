@@ -1,6 +1,5 @@
 <template>
 <div id="wrapper">
-    {{ getArticle.posts }}
     <div class="article">
         <div class="article-head">
             <div class="row article-title-row">
@@ -114,7 +113,7 @@
                             :class="{disabled: !getCurrentUser || isPushed(post) || isPushSelf(post)}">
                         <i class="fas fa-thumbs-up"></i> 
                         <span class="push-length">
-                            {{ getArticle.pushs.length }}
+                            {{ post.pushs.length }}
                         </span>
                     </button>
                 </div>

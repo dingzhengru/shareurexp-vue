@@ -131,7 +131,7 @@ export default {
             },
             pagination :{
                 currentPage: 1,
-                pagesize: 3
+                pagesize: 5
             },
             showmode: 'page', // page, scroll
             contentSize: 50
@@ -151,6 +151,7 @@ export default {
         // 設置使用者設定 showmode
         this.setUserChecker(() => {
             this.showmode = this.getCurrentUser.settings.showmode
+            this.pagination.pagesize = Number(this.getCurrentUser.settings.pagesize)
         })
         
 
@@ -358,9 +359,35 @@ export default {
         },
         changeShowmode: function(showmode) {
             this.showmode = showmode
-            this.pagination = {
-                currentPage: 1,
-                pagesize: 3
+
+            if(this.getCurrentUser) {
+                this.getCurrentUser.settings.showmode = showmode
+                this.$store.dispatch('users/updateDataAction', this.getCurrentUser)
+            }
+
+            let pagesize = 5
+
+            if(showmode == 'scroll') {
+                this.pagination = {
+                    pagesize: pagesize,
+                    currentPage: 1
+                }
+            } else if(showmode == 'page') {
+
+                if(this.getCurrentUser) {
+
+                    pagesize = Number(this.getCurrentUser.settings.pagesize)
+
+                    this.pagination = {
+                        pagesize: pagesize,
+                        currentPage: 1
+                    }
+                } else {
+                    this.pagination = {
+                        pagesize: pagesize,
+                        currentPage: 1
+                    }
+                }
             }
         },
         handleScroll: function(event) {
@@ -375,6 +402,8 @@ export default {
             let offsetBottom = 50;
 
             if((document.body.scrollHeight - window.innerHeight) - scrollY <= offsetBottom) {
+                if(this.pagination.pagesize >= this.getSearchArticles.length)
+                    return
                 this.pagination.pagesize = this.pagination.pagesize + 3;
             }
         },

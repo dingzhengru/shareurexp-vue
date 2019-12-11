@@ -39,7 +39,13 @@
                 </div>
                 <div>
                     <span class="mr-3">
-                        
+                        發文總數: {{ getArticlesByUserId.length }}
+                    </span>
+                    <span class="mr-3">
+                        回覆總數: {{ getPostsByUserId.length }}
+                    </span>
+                    <span class="mr-3">
+                        總推數: {{ getAllPushsLenByUserId }}
                     </span>
                 </div>
             </div>
@@ -109,6 +115,18 @@ export default {
         },
         getEmailVerified: function() {
             return this.$store.getters['auth/getEmailVerified']
+        },
+        getArticlesByUserId: function() {
+            let id = this.getCurrentUser.id
+            return this.$store.getters['articles/getArticlesByUserId'](id)
+        },
+        getPostsByUserId: function() {
+            let id = this.getCurrentUser.id
+            return this.$store.getters['posts/getPostsByUserId'](id)
+        },
+        getAllPushsLenByUserId: function() {
+            let id = this.getCurrentUser.id
+            return this.$store.getters['articles/getAllPushsLenByUserId'](id)
         }
     },
     methods: {
@@ -116,7 +134,7 @@ export default {
             let user = this.getAuthUser
             this.emailMsg = ''
             this.emailError = ''
-            
+
             this.$store.dispatch('auth/sendEmailVerification', user)
             .then(() => {
                 this.emailMsg = '已發送'

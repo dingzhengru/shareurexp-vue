@@ -179,7 +179,14 @@
 
 <main class="container">
 
-    <router-view/>
+    <router-view  v-if="!loading"/>
+
+    
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border"
+             role="status"
+             v-if="loading"></div>
+    </div>
 </main>
 
 <footer>
@@ -241,11 +248,14 @@ export default {
             notices: {
                 size: 10,
                 readWait: 3000,
-            }
+            },
+            loading: true,
         }
     },
-    created: function() {
-        
+    mounted: function () {
+        this.$nextTick(() => {
+            this.loading = false
+        })
     },
     computed: {
         authIsReady: function() {

@@ -71,6 +71,17 @@ export default {
             let data = state.data || [];
             return data.filter(item => item.creator == id)
         },
+        getAllPushsLenByUserId: (state) => (id) => {
+            let data = state.data || [];
+            let pushLen = 0
+            for(let key in data) {
+                let item = data[key]
+                if(item.creator == id) {
+                    pushLen = pushLen + item.pushs.length
+                }
+            }
+            return pushLen
+        },
         getArticlesBySchoolId: (state) => (id) => {
             let data = state.data || [];
             return data.filter(item => item.school == id)

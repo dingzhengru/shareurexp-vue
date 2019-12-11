@@ -14,8 +14,8 @@
             </div>
         </div>
     </div>
-    <div id="Accordion" class="">
-        <div class="card user-settings-card w-50">
+    <div id="Accordion">
+        <div class="card user-settings-card">
             <div class="card-header">
                 <button class="btn btn-link btn-block text-left font-weight-bold" 
                         data-toggle="collapse" 
@@ -74,7 +74,7 @@
         </div>
         <!-- 文章 -->
         <!-- 帳戶 -->
-        <div class="card user-settings-card w-50">
+        <div class="card user-settings-card">
             <div class="card-header">
                 <button class="btn btn-link btn-block text-left font-weight-bold"
                         data-toggle="collapse"
@@ -100,7 +100,7 @@
         </div>
         <!-- 帳戶 -->
         <!-- 通知 -->
-        <div class="card user-settings-card w-50">
+        <!-- <div class="card user-settings-card w-50">
             <div class="card-header">
                 <button class="btn btn-link btn-block text-left font-weight-bold"
                         data-toggle="collapse"
@@ -117,7 +117,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     
     <!-- Modal -->
