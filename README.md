@@ -1,6 +1,9 @@
 # shareurexp-vue(demo project)
-
+*  <a href="#展示網址">展示網址</a>
 *  <a href="#project-setup">Project setup</a>
+*  <a href="#firebase-tools">firebase-tools</a>
+    *  <a href="#hosting">hosting</a>
+*  <a href="#express-serverjs">express-server.js</a>
 *  <a href="#connect-history-api-fallback">connect-history-api-fallback</a>
 *  <a href="#store-firebase">store-firebase</a>
 *  <a href="#my-computed">my-computed</a>
@@ -38,6 +41,11 @@
     *  <a href="#ERR_BLOCKED_BY_CLIENT">ERR_BLOCKED_BY_CLIENT</a>
     *  <a href="#如何在vue監聽scroll">如何在vue監聽scroll</a>
     *  <a href="#取得scroll位置與是否快到底部的判斷">取得scroll位置與是否快到底部的判斷</a>
+
+## 展示網址
+*  https://shareurexp-demo.firebaseapp.com/
+*  使用 firebase hosting 的免費空間
+
 ## Project setup
 ```npm install```  
 
@@ -49,6 +57,52 @@
 
 ### Lints and fixes files
 ```npm run lint```  
+
+##  firebase-tools
+*  Firebase 命令行界面(CLI)工具，可用於從cmd中測試，管理和部署Firebase項目
+*  有Database, Firestore, Functions, Hosting, Storage 可以使用
+*  目前只使用Hosting
+
+```
+npm install -g firebase-tools
+
+// 串接Google帳號 (會跳出google視窗)
+firebase login
+
+// 在當前目錄中串接並設置一個新的 Firebase 項目(創建 firebase.json)
+firebase init
+
+// 串接已存在的 firebase 專案
+firebase use --add
+
+// 上傳網站到 firebase
+firebase deploy
+```
+
+### hosting
+*  將網站部屬在firebase提供的網址上
+*  提供https服務
+*  免費限制: 上傳:1GB/月，下載: 10GB/月
+*  參考: https://www.minwt.com/website/server/21596.html
+
+```
+firebase init
+
+// 1. 選擇 Hosting: Configure and deploy Firebase Hosting sites
+// 2. 選擇一個已有的專案(或創一個新的)
+// 3. 輸入public目錄名稱(index.html所在的位置)
+// 4. 選擇是否為spa，不是的話就要在firebase.json自己設定route
+// 本專案選擇
+//  2. Don't set up a default project
+//  3. dist
+//  4. y
+
+firebase use --add
+
+firebase deploy
+```
+
+###
 
 ## connect-history-api-fallback
 *  用於讓express server 實現前端 router 的 history mode
