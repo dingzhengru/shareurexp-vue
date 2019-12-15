@@ -22,6 +22,7 @@
     *  <a href="#"></a>
 *  <a href="css-animate">css animate</a>
 *  <a href="#firebase">firebase</a>
+*  <a href="#firestore-安全規則">firestore 安全規則</a>
 *  <a href="#bootstrap">bootstrap</a>
     *  <a href="#bootstrap的置中">bootstrap的置中</a>
     *  <a href="#有下拉軸的Dropdown">有下拉軸的Dropdown</a>
@@ -136,6 +137,27 @@ app.listen(port, () => console.log(`Listening on port ${port}`))
 **use in other .js, .vue**  
 ```
 import { firebase, db, actionCodeSettings } from '../firebase.js'
+```
+
+## firestore 安全規則
+*  為資料庫設置條件，符合條件才能執行read(get, list), write(create, update, delete)
+*  規則特殊定義字request, resource，在設定條件一定會用到
+*  request可以取得auth的資料，resource可以取得當下路徑的那筆資料
+*  ```{document=**} 代表該路徑所有資料```
+
+```
+// 只允許 user.uid == auth.uid 才能更新
+// resource.data 就是取得該路徑的資料
+match /users/{userId}/{document=**} {
+  allow read, create;
+  allow update: if request.auth.uid == resource.data.uid;
+}
+```
+```
+// 登入後才能創建新文章
+match /articles/{articleId}/{document=**} {
+  allow write: if request.auth.uid != null
+}
 ```
 
 ## store-firebase
