@@ -153,6 +153,7 @@ export default {
     actions: {
         setWatchDataAction({ state, commit }, payload) {
             db.collection(state.collection)
+            .orderBy('id')
             .onSnapshot(snapshot => {
                 let data = snapshot.docs.map(doc => doc.data());
                 commit('setData', data);
