@@ -13,7 +13,8 @@ const firebaseConfig = {
 };
 
 const actionCodeSettings = {
-    url: 'http://localhost:8080',
+    // url: 'http://localhost:8080',
+    url: 'https://shareurexp-demo.web.app'
     handleCodeInApp: true,
 };
 
